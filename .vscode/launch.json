@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "request": "launch",
+      "type": "cppvsdbg",
+      "program": "GamerSaver",
+      "name": "Debug GamerSaver",
+      "preLaunchTask": "Build Debug (Ninja)",
+      "logging": {
+        "moduleLoad": false
+      },
+      "windows": {
+        "cwd": "${workspaceRoot}\\build\\src\\",
+      },
+      "linux": {
+        // "type": "cppdbg",
+        "cwd": "${workspaceRoot}/build/src/",
+        "setupCommands": [
+          {
+            "description": "Enable pretty-printing for gdb",
+            "text": "-enable-pretty-printing",
+            "ignoreFailures": true
+          }
+        ]
+      },
+    },
+  ]
+}

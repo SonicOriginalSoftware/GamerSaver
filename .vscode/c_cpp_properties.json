@@ -1,0 +1,22 @@
+{
+  "configurations": [
+    {
+      "name": "Windows",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "C:\\Qt\\5.13.0\\msvc2017_64\\include\\**"
+      ],
+      "defines": [],
+      "intelliSenseMode": "msvc-x64",
+      "cppStandard": "c++17"
+    },
+    {
+      "name": "linux",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "/usr/include/qt/**"
+      ]
+    }
+  ],
+  "version": 4
+}

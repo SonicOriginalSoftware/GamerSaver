@@ -1,0 +1,64 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Generate Debug",
+        "type": "shell",
+        "command": "vcvars64 && meson build",
+        "group": "build"
+      },
+      {
+        "windows": {
+          "command": "vcvars64 && ninja -C build",
+        },
+        "linux": {
+          "command": "ninja -C build"
+        },
+        "label": "Build Debug (Ninja)",
+        "type": "shell",
+        "isBackground": false,
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "silent",
+          "focus": false,
+          "panel": "dedicated",
+          "showReuseMessage": true,
+          "clear": true
+        }
+      },
+      {
+        "label": "Wipe debug",
+        "type": "shell",
+        "command": "meson --wipe build",
+        "problemMatcher": []
+      },
+      {
+        "label": "Run Tests",
+        "type": "shell",
+        "windows": {
+          "command": "vcvars64 && meson test -C build",
+        },
+        "linux": {
+          "command": "meson test -C build"
+        },
+        "group": {
+          "kind": "test",
+          "isDefault": true
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "silent",
+          "focus": false,
+          "panel": "dedicated",
+          "showReuseMessage": true,
+          "clear": true
+        }
+      }
+    ]
+}

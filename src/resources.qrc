@@ -1,0 +1,6 @@
+<RCC>
+    <qresource>
+        <file>../res/login_placeholder.svg</file>
+        <file>../res/DefaultGameList.ini</file>
+    </qresource>
+</RCC>
