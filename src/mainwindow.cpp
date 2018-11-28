@@ -1,69 +1,67 @@
 #include <QtGui/QIcon>
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QMainWindow>
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QListView>
 #include <QtWidgets/QPushButton>
-
+#include <QStringListModel>
 #include <mainwindow.h>
 #include <game.h>
-#include <QStringListModel>
 
-GS::MainWindow::MainWindow(QWidget *parent) :
-	QMainWindow(parent),
+GS::MainWindow::MainWindow() :
 	gameMap{new QHash<QString, QStringList>{GS::Game::UpdateInstalledGames()}},
 	saveLM{new QStringListModel(this)},
 	gameLM{new QStringListModel(gameMap->keys(), this)},
 	gridLayoutWidget{new QWidget(this)},
 	gridLayout{new QGridLayout(gridLayoutWidget)},
-	loginBtn{new QPushButton(gridLayoutWidget)},
+	loginBtn{new QPushButton(QIcon(":/images/ic_account_box_white_24px.svg"),
+							 "Login", gridLayoutWidget)},
 	gameSelector{new QComboBox(gridLayoutWidget)},
-	refreshBtn{new QPushButton(gridLayoutWidget)},
+	refreshBtn{new QPushButton("Refresh", gridLayoutWidget)},
 	saveList{new QListView(gridLayoutWidget)}
 {
-	if (objectName().isEmpty()) setObjectName("MainWindow");
+	setWindowTitle("GamerSaver");
 	resize(737, 564);
-	gridLayoutWidget->setObjectName("gridLayoutWidget");
+	setCentralWidget(gridLayoutWidget);
 
-	gridLayout->setSpacing(6);
-	gridLayout->setObjectName("gridLayout");
-	gridLayout->setSizeConstraint(QLayout::SetDefaultConstraint);
 	gridLayout->setContentsMargins(4, 4, 4, 4);
-
-	loginBtn->setObjectName("loginBtn");
 	loginBtn->setEnabled(false);
-	loginBtn->setIcon(QIcon(":/images/ic_account_box_white_24px.svg"));
-	loginBtn->setIconSize(QSize(32, 32));
 
-	loginBtn->setText(QApplication::translate("MainWindow", "Login", nullptr));
-	refreshBtn->setText(QApplication::translate("MainWindow", "Refresh", nullptr));
-
+	setObjectName("MainWindow");
+	gridLayoutWidget->setObjectName("gridLayoutWidget");
+	gridLayout->setObjectName("gridLayout");
+	loginBtn->setObjectName("loginBtn");
 	refreshBtn->setObjectName("refreshBtn");
 	gameSelector->setObjectName("gameSelector");
 	saveList->setObjectName("saveList");
 
-	gridLayout->addWidget(loginBtn, 0, 0, 1, 4);
-	gridLayout->addWidget(gameSelector, 1, 0, 1, 3);
-	gridLayout->addWidget(refreshBtn, 1, 3, 1, 1);
-	gridLayout->addWidget(saveList, 2, 0, 1, 4);
+	gridLayout->addWidget(loginBtn, 0, 0, 1, 5);
+	gridLayout->addWidget(gameSelector, 1, 0, 1, 4);
+	gridLayout->addWidget(refreshBtn, 1, 4, 1, 1);
+	gridLayout->addWidget(saveList, 2, 0, 1, 5);
 
-	setCentralWidget(gridLayoutWidget);
 	QMetaObject::connectSlotsByName(this);
 
 	saveList->setModel(saveLM);
 	gameSelector->setModel(gameLM);
-	setWindowTitle(QApplication::translate("MainWindow", "GamerSaver", nullptr));
 }
 
 GS::MainWindow::~MainWindow()
 {
 	delete gameMap;
+	delete saveLM;
+	delete gameLM;
 	delete gridLayoutWidget;
 }
 
 void GS::MainWindow::on_gameSelector_currentTextChanged(const QString &gameName) const
 {
 	saveLM->setStringList((*gameMap)[gameName]);
+}
+
+void GS::MainWindow::on_refreshBtn_clicked(const bool&) const
+{
+	*gameMap = GS::Game::UpdateInstalledGames();
+	gameLM->setStringList(gameMap->keys());
+	gameSelector->setCurrentText(gameLM->stringList().first());
 }

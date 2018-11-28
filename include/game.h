@@ -5,8 +5,6 @@ class QString;
 class QStringList;
 template <class key, class value>
 class QHash;
-template <class key, class value>
-class QPair;
 class QFileSystemWatcher;
 
 namespace GS {

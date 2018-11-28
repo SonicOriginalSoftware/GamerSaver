@@ -27,9 +27,10 @@ class MainWindow : public QMainWindow
 
 private slots:
 	void on_gameSelector_currentTextChanged	(const QString&) const;
+	void on_refreshBtn_clicked				(const bool&) const;
 
 public:
-	explicit MainWindow(QWidget *parent = nullptr);
+	explicit MainWindow();
 	~MainWindow();
 };
 }
