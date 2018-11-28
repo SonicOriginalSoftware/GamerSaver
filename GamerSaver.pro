@@ -6,18 +6,16 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 CONFIG += c++14
 
 INCLUDEPATH = include
-HEADERS = include/*.h include/ui/*.h
+HEADERS = include/*.h
 SOURCES = src/*.cpp
-FORMS = src/*.ui
 
 OBJECTS_DIR = obj
 MOC_DIR = obj
-UI_DIR = include/ui
 
 RESOURCES = res/resources.qrc
 RCC_DIR = obj
 DESTDIR = bin
 
 install_gameList.path = $$DESTDIR
-install_gameList.files += $$PWD/GameList.ini
+install_gameList.files += $$PWD/res/GameList.ini
 INSTALLS += install_gameList

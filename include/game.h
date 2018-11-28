@@ -1,8 +1,29 @@
 #pragma once
-#include <QHash>
 
+// Forward declarations
+class QString;
+class QStringList;
+template <class key, class value>
+class QHash;
+template <class key, class value>
+class QPair;
+class QFileSystemWatcher;
+
+namespace GS {
+///
+/// \brief The Game class
+///
 class Game
 {
 public:
-	static QHash<QString, QStringList> GetInstalledGames();
+	///
+	/// \brief Really cool function! (TODO!)
+	///
+	/// TODO
+	/// \param ???
+	/// \return A hashtable of string and list of strings
+	///
+	static QHash<QString, QStringList> UpdateInstalledGames();
 };
+}
+
