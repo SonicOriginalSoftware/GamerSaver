@@ -1,4 +1,4 @@
-QT += core gui network networkauth widgets
+QT += core network widgets
 TEMPLATE = app
 TARGET = GamerSaver
 MAKEFILE = QtMakefile

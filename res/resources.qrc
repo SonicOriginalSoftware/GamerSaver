@@ -4,6 +4,6 @@
     </qresource>
     <qresource prefix="/documents">
         <file>DefaultGameList.ini</file>
-        <file>apikey.json</file>
+        <file>credentials.json</file>
     </qresource>
 </RCC>
