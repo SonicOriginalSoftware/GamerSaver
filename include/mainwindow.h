@@ -2,11 +2,8 @@
 #include <QMainWindow>
 
 // Forward declarations
-class QStringListModel;
-class QGridLayout;
-class QPushButton;
-class QComboBox;
-class QListView;
+class QListView; class QGridLayout; class QPushButton; class QComboBox;
+class QStringListModel; class NetworkManager;
 
 namespace GS
 {

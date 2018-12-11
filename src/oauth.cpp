@@ -5,6 +5,14 @@
 #include <QJsonArray>
 #include <oauth.h>
 
+GS::File::File(const QString& filePath) : file{new QFile{filePath}}
+{
+	file->open(QIODevice::ReadOnly | QIODevice::Text);
+	data = new QByteArray{ file->readAll() };
+}
+
+GS::File::~File() { file->close(); delete data; delete file; }
+
 struct GS::OAuth2::Credentials
 {
 	QString client_id{""};
@@ -13,22 +21,17 @@ struct GS::OAuth2::Credentials
 	QList<QString> redirect_uris{""};
 };
 
-void GS::OAuth2::SetClientId()
+GS::OAuth2::OAuth2() : credentials{new Credentials{}}
 {
-	QFile credentialFile{":/documents/credentials.json"};
+	File _credentialFile{":/documents/credentials.json"};
 	QJsonParseError jsonErr{};
-	credentialFile.open(QIODevice::OpenModeFlag::ReadOnly | QIODevice::Text);
-	QJsonDocument credentialJson{QJsonDocument::fromJson(credentialFile.readAll(),
-														 &jsonErr)};
-	credentialFile.close();
+	QJsonDocument credentialJson{QJsonDocument::fromJson(*_credentialFile.data, &jsonErr)};
 	if (jsonErr.error != QJsonParseError::NoError) return;
 	QJsonObject json{credentialJson.object()};
-	QString client_id = json["client_id"].toString();
-	QString auth_uri = json["auth_uri"].toString();
-	QString token_uri = json["token_uri"].toString();
-	QVariantList redirect_uris = json["redirect_uris"].toArray().toVariantList();
+	credentials->client_id = json["client_id"].toString();
+	credentials->auth_uri = json["auth_uri"].toString();
+	credentials->token_uri = json["token_uri"].toString();
+	credentials->redirect_uris = json["redirect_uris"].toVariant().toStringList();
 }
 
-GS::OAuth2::OAuth2()
-{
-}
+GS::OAuth2::~OAuth2() { delete credentials; }

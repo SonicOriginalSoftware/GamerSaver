@@ -1,16 +1,29 @@
 #pragma once
-//#include <QObject>
 
 // Forward Declarations
+class QFile;
+class QByteArray;
+class QString;
 
 namespace GS
 {
+class File
+{
+	QFile* file;
+
+public:
+	QByteArray* data;
+	File(const QString&);
+	~File();
+};
+
 class OAuth2
 {
-	void SetClientId();
 	struct Credentials;
 
 public:
-	OAuth2();
+	Credentials *credentials;
+	explicit OAuth2();
+	~OAuth2();
 };
 }

@@ -7,6 +7,7 @@
 #include <QStringListModel>
 #include <mainwindow.h>
 #include <game.h>
+#include <oauth.h>
 
 GS::MainWindow::MainWindow() :
 	gameMap{new QHash<QString, QStringList>{GS::Game::UpdateInstalledGames()}},
