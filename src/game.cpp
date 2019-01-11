@@ -20,7 +20,7 @@ QHash<QString, QStringList> GS::Game::UpdateInstalledGames()
 		saveDir.setPath(QDir::homePath() + "/" + savePath);
 
 		QStringList saveExtensions = customGames.value(gameName + "/ext",
-						 defaultGames.value(gameName + "/ext")).toStringList();
+					defaultGames.value(gameName + "/ext")).toStringList();
 		saveDir.setNameFilters(saveExtensions);
 
 		if (saveDir.exists() && saveDir.count() > 0)
