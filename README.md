@@ -4,27 +4,25 @@ Cloud-based management of saves for games. Developed using Qt and C++.
 Currently integrated with Google Drive as the cloud storage platform
 * Needs Google account to sign in and use app!
 
-
 # Current Features
 * List local save games for supported games
 * OAuth 2.0 Authorization and login for Google Drive support
 
 # Status
-* Active development
+* Undergoing rewrite
 
-# Upcoming Features
+# Roadmap
+## Upcoming Features
 * Create support for loading a picture icon for the logged in user
 * Check access and permission to write to GamerSaver folder on user Drive account
 * Implement export and import save features
 * Finish integrating Google Drive API calls for getting and pushing files
 * Better encryption for user password and credential storing - I care about security and privacy!
 
-
-# Long-Term Features
+## Long-Term Features
 * Add extensibility (custom games support through user-created text file)
 * Theme
 * Switch to more profesional cloud storage platform if enough warrant it
-
 
 # Supported Games
 ## Bethesda games
@@ -36,13 +34,11 @@ Currently integrated with Google Drive as the cloud storage platform
 * Fallout 3
 * Fallout New Vegas
 
-
 # Installation
 * Unsupported right now
 * Will likely use GitHub's Release system in future when app is more deployable
 * Until then, you can build this yourself from source using Qt framework
 * If you're not sure how to do that, for now, you'll have to do some research
-
 
 # Contributing
 1. Create an issue with your feature request/bug report
@@ -52,11 +48,8 @@ Currently integrated with Google Drive as the cloud storage platform
 5. Submit Pull Request (PR)
 6. Profit??
 
-
-# Bugs and Known Issues
-* There is no timer or timeout monitoring for the loopback OAuth server. As such, closing out of the opened browser window will never trigger the application to stop waiting for a loopback response and authorization will never finish.
-	* To fix this, you'll need to relaunch the application.
-* No password recovery options are available. A password reset effect can be achieved by reauthorization with the desired username. This will prompt authentication from Google and, assuming you haven't left your logged-in Google sessions available on your browser for others to use, this means of authentication is viewed as sufficient for the scope of this application.
+# Resetting Password
+* Reauthorization with the desired username. This will prompt authentication from Google and, assuming you haven't left your logged-in Google sessions available on your browser for others to use, this means of authentication is viewed as sufficient for the scope of this application.
 
 
 # Notes
@@ -77,3 +70,4 @@ Thank you to the amazing [NexusMods](http://www.nexusmods.com/games/?) community
 Tannin42, thank you for the inspiration to build this application using Qt and C++. ModOrganizer remains my motivation for how to make software that works well, provides great features, extensive tools, and an intuitive user experience.
 
 And most of all, thank ***you*** for reading this, downloading GamerSaver, using GamerSaver, and experiencing what I hope has been a refreshingly simple and straightforward software experience.
+
