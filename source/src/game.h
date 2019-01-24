@@ -4,7 +4,6 @@ namespace GS {
 class Game
 {
 public:
-	static void UpdateInstalledGames();
+  static void UpdateInstalledGames();
 };
-}
-
+} // namespace GS

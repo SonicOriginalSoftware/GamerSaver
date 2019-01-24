@@ -47,7 +47,8 @@ GS::MainWindow::MainWindow() :
   gameSelector->setModel(gameLM);
 }
 
-GS::MainWindow::~MainWindow() {
+GS::MainWindow::~MainWindow()
+{
   delete gameMap;
   delete saveLM;
   delete gameLM;
@@ -55,12 +56,14 @@ GS::MainWindow::~MainWindow() {
 }
 
 void GS::MainWindow::on_gameSelector_currentTextChanged(
-    const QString &gameName) const {
+    const QString &gameName) const
+{
   saveLM->setStringList((*gameMap)[gameName]);
 }
 
-void GS::MainWindow::on_refreshBtn_clicked(const bool &) const {
-  //	*gameMap = GS::Game::UpdateInstalledGames();
+void GS::MainWindow::on_refreshBtn_clicked(const bool &) const
+{
+  // *gameMap = GS::Game::UpdateInstalledGames();
   gameLM->setStringList(gameMap->keys());
   gameSelector->setCurrentText(gameLM->stringList().first());
 }
