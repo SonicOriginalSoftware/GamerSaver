@@ -1,6 +1,5 @@
 #pragma once
 #include <QMainWindow>
-#include <unordered_map>
 
 // Forward declarations
 class QListView;

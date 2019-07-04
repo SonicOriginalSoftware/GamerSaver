@@ -1,3 +1,6 @@
+#include "mainwindow.h"
+#include "game.h"
+#include "oauth.h"
 #include <QStringListModel>
 #include <QtGui/QIcon>
 #include <QtWidgets/QComboBox>
@@ -5,9 +8,6 @@
 #include <QtWidgets/QListView>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
-#include "game.h"
-#include "mainwindow.h"
-#include "oauth.h"
 
 GS::MainWindow::MainWindow() :
     gameMap{new QHash<QString, QStringList>},
