@@ -24,3 +24,4 @@ public:
   const QStringList& RedirectURIs() const;
 };
 } // namespace GS
+

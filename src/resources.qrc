@@ -3,5 +3,7 @@
         <file>../res/apikey.json</file>
         <file>../res/login_placeholder.svg</file>
         <file>../res/style.css</file>
+        <file>../res/DefaultGameList.ini</file>
     </qresource>
 </RCC>
+

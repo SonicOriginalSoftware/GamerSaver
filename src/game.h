@@ -1,14 +1,19 @@
 #pragma once
 
-template<class K, class V> class QHash;
+template<class K, class V>
+class QHash;
+class QSettings;
 class QString;
 class QStringList;
 
-namespace GS {
+namespace GS
+{
+class Game
+{
+  static void updateGames(QHash<QString, QStringList>&, const QSettings&);
 
-class Game {
 public:
-  static QStringList GetGames();
-  static QStringList GetSaves(const QString&);
+  static const QHash<QString, QStringList> BuildGames();
 };
 } // namespace GS
+

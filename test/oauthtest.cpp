@@ -1,16 +1,12 @@
-#include <QString>
-#include <QStringList>
-#include "testresults.h"
 #include "oauthtest.h"
 #include "oauth.h"
+#include "testresults.h"
+#include <QString>
+#include <QStringList>
 
-int GSTest::OAuthTest::SetUp() const
-{
-  return 0;
-}
+int GSTest::OAuthTest::SetUp() const { return 0; }
 
-bool GSTest::OAuthTest::ClientIDCorrect(const GS::OAuth2 &oauth) const
-{
+bool GSTest::OAuthTest::ClientIDCorrect(const GS::OAuth2 &oauth) const {
 #ifdef SHOULD_FAIL
   return oauth.ClientID() == "none";
 #else
@@ -18,8 +14,7 @@ bool GSTest::OAuthTest::ClientIDCorrect(const GS::OAuth2 &oauth) const
 #endif
 }
 
-bool GSTest::OAuthTest::AuthURICorrect(const GS::OAuth2 &oauth) const
-{
+bool GSTest::OAuthTest::AuthURICorrect(const GS::OAuth2 &oauth) const {
 #ifdef SHOULD_FAIL
   return oauth.AuthURI() == "none";
 #else
@@ -27,8 +22,7 @@ bool GSTest::OAuthTest::AuthURICorrect(const GS::OAuth2 &oauth) const
 #endif
 }
 
-bool GSTest::OAuthTest::TokenURICorrect(const GS::OAuth2 &oauth) const
-{
+bool GSTest::OAuthTest::TokenURICorrect(const GS::OAuth2 &oauth) const {
 #ifdef SHOULD_FAIL
   return oauth.TokenURI() == "none";
 #else
@@ -36,8 +30,7 @@ bool GSTest::OAuthTest::TokenURICorrect(const GS::OAuth2 &oauth) const
 #endif
 }
 
-bool GSTest::OAuthTest::RedirectURIsCorrect(const GS::OAuth2 &oauth) const
-{
+bool GSTest::OAuthTest::RedirectURIsCorrect(const GS::OAuth2 &oauth) const {
 #ifdef SHOULD_FAIL
   return oauth.RedirectURIs() == QStringList{};
 #else
@@ -45,15 +38,12 @@ bool GSTest::OAuthTest::RedirectURIsCorrect(const GS::OAuth2 &oauth) const
 #endif
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   GSTest::OAuthTest oauthTest{};
-  if (oauthTest.SetUp() != 0)
-    return TestResult::FAILED_SETUP;
+  if (oauthTest.SetUp() != 0) return TestResult::FAILED_SETUP;
 
   GS::OAuth2 oauth{};
-  if (oauth.Errored())
-    return TestResult::FAIL;
+  if (oauth.Errored()) return TestResult::FAIL;
 
   int testResults{0};
   // Test the credentials struct
@@ -64,3 +54,4 @@ int main(int argc, char *argv[])
 
   return testResults;
 }
+

@@ -23,19 +23,21 @@ oauth_sources = [
   'oauthtest.cpp',
 ]
 
-oauthTest = executable(
-  'OAuthTest',
-  include_directories: [src_dir],
-  sources: oauth_sources,
-  dependencies: qt_deps
-)
-
 oauthNegativeTest = executable(
   'OAuthNegativeTest',
   include_directories: [src_dir],
   sources: oauth_sources,
   dependencies: qt_deps,
+  build_by_default: false,
   cpp_args: ['-DSHOULD_FAIL=true'],
+)
+
+oauthTest = executable(
+  'OAuthTest',
+  include_directories: [src_dir],
+  sources: oauth_sources,
+  dependencies: qt_deps,
+  build_by_default: false,
 )
 
 test(

@@ -9,11 +9,14 @@ class QComboBox;
 class QStringListModel;
 class QNetworkAccessManager;
 
-namespace GS {
+namespace GS
+{
 class OAuth2;
 
 class MainWindow : public QMainWindow {
   Q_OBJECT
+
+  QHash<QString, QStringList> games;
 
   QNetworkAccessManager *nam{nullptr};
 
@@ -22,15 +25,16 @@ class MainWindow : public QMainWindow {
   QWidget *gridLayoutWidget{nullptr};
   QGridLayout *gridLayout{nullptr};
   QPushButton *loginBtn{nullptr};
-  QComboBox *gameSelector{nullptr};
   QPushButton *refreshBtn{nullptr};
+  QComboBox *gameSelector{nullptr};
   QListView *saveList{nullptr};
 
   OAuth2 *oauth{nullptr};
 
+
 private slots:
   void on_gameSelector_currentTextChanged(const QString &) const;
-  void on_refreshBtn_clicked(const bool &) const;
+  void on_refreshBtn_clicked(const bool &);
   void on_loginBtn_clicked(const bool &) const;
 
 public:
@@ -38,3 +42,4 @@ public:
   ~MainWindow();
 };
 } // namespace GS
+

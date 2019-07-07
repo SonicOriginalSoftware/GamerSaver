@@ -1,3 +1,4 @@
+#pragma once
 namespace GS {
 class OAuth2;
 }
@@ -14,3 +15,4 @@ public:
   bool RedirectURIsCorrect(const GS::OAuth2& oauth) const;
 };
 }
+

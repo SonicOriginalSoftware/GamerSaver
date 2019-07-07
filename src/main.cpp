@@ -1,9 +1,13 @@
+#include "appmanifest.cpp"
+#include "mainwindow.h"
 #include <QApplication>
 #include <QFile>
-#include "mainwindow.h"
 
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
+  QCoreApplication::setOrganizationName(GS::AppManifest::OrgName);
+  QCoreApplication::setApplicationName(GS::AppManifest::AppName);
+  QCoreApplication::setApplicationVersion(GS::AppManifest::Version);
 
   QString customFileName = QCoreApplication::applicationDirPath() + "/styles/custom.css";
   QString styleFileName = QFile::exists(customFileName) ? customFileName : ":/res/style.css";
@@ -20,3 +24,4 @@ int main(int argc, char *argv[]) {
 
   return a.exec();
 }
+
