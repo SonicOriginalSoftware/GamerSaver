@@ -1,26 +1,27 @@
 #pragma once
 
-// Forward Declarations
-class QFile;
-class QByteArray;
 class QString;
+class QStringList;
 
-namespace GS {
-class File {
-  QFile *file;
-
-public:
-  QByteArray *data;
-  File(const QString &);
-  ~File();
-};
-
-class OAuth2 {
-  struct Credentials;
+namespace GS
+{
+class OAuth2
+{
+  bool errored{false};
 
 public:
-  Credentials *credentials;
   explicit OAuth2();
   ~OAuth2();
+
+  bool Errored() const;
+
+  struct Credentials
+  {
+    QString *client_id{nullptr};
+    QString *auth_uri{nullptr};
+    QString *token_uri{nullptr};
+    QStringList *redirect_uris{nullptr};
+  };
+  Credentials credentials;
 };
 } // namespace GS
