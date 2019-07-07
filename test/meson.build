@@ -1,8 +1,11 @@
+src_dir = '../src/'
+
 moc_headers = [
 ]
 qt_sources = [
 ]
 q_resources = [
+  src_dir + 'resources.qrc',
 ]
 
 moc_files = qt.preprocess(
@@ -12,8 +15,6 @@ moc_files = qt.preprocess(
   qresources: q_resources,
   dependencies: qt_deps
 )
-
-src_dir = '../src/'
 
 oauth_sources = [
   moc_files,
@@ -29,10 +30,17 @@ oauthTest = executable(
   dependencies: qt_deps
 )
 
+oauthNegativeTest = executable(
+  'OAuthNegativeTest',
+  include_directories: [src_dir],
+  sources: oauth_sources,
+  dependencies: qt_deps,
+  cpp_args: ['-DSHOULD_FAIL=true'],
+)
+
 test(
   'OAuthNegativeTest',
-  oauthTest,
-  args: ['SHOULD_FAIL=true'],
+  oauthNegativeTest,
   should_fail: true
 )
 

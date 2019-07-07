@@ -1,3 +1,4 @@
+#include <QResource>
 #include <QHash>
 #include <QStringListModel>
 #include <QtGui/QIcon>
@@ -16,14 +17,14 @@ GS::MainWindow::MainWindow() : nam{new QNetworkAccessManager(this)},
                                saveLM{new QStringListModel(this)},
                                gridLayoutWidget{new QWidget(this)},
                                gridLayout{new QGridLayout(gridLayoutWidget)},
-                               loginBtn{new QPushButton(QIcon(":/res/ic_account_box_white_24px.svg"), "Login", gridLayoutWidget)},
+                               loginBtn{new QPushButton(QIcon(":/res/login_placeholder.svg"), "Login", gridLayoutWidget)},
                                gameSelector{new QComboBox(gridLayoutWidget)},
                                refreshBtn{new QPushButton("Refresh", gridLayoutWidget)},
                                saveList{new QListView(gridLayoutWidget)},
                                oauth{new OAuth2()}
 {
   if (oauth->Errored())
-    return;
+    this->close();
 
   setWindowTitle("GamerSaver");
   setObjectName("MainWindow");

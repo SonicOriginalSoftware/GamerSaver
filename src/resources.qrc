@@ -1,7 +1,7 @@
 <RCC>
     <qresource>
-        <file alias="apikey">../res/apikey.json</file>
-        <file>../res/ic_account_box_white_24px.svg</file>
-        <file>style.css</file>
+        <file>../res/apikey.json</file>
+        <file>../res/login_placeholder.svg</file>
+        <file>../res/style.css</file>
     </qresource>
 </RCC>
