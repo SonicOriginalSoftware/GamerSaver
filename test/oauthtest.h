@@ -13,6 +13,7 @@ public:
   bool AuthURICorrect(const GS::OAuth2& oauth) const;
   bool TokenURICorrect(const GS::OAuth2& oauth) const;
   bool RedirectURIsCorrect(const GS::OAuth2& oauth) const;
+  bool Login(const GS::OAuth2& oauth) const;
 };
 }
 

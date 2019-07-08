@@ -1,27 +1,50 @@
 #pragma once
+#include <QObject>
 
 class QString;
-class QStringList;
+class QTcpServer;
+class QTcpSocket;
+class QNetworkAccessManager;
 
 namespace GS
 {
-class OAuth2
+class OAuth2 : public QObject
 {
+  Q_OBJECT
+
   struct Credentials;
+  struct Tokens;
+  struct OAuthParameters;
+  struct OAuthEndpoints;
+  struct UserProfile;
+  struct OAuthResponse;
+
+  Credentials *credentials;
+  Tokens *tokens;
+  UserProfile *profile;
 
   bool errored{false};
+  const int timeout{5000};
+
+  void shutdownServer(QTcpServer&) const;
+  void shutdownServer(QTcpServer&, QTcpSocket*) const;
 
 public:
-  Credentials *credentials;
+  enum State {
+    UNDEFINED,
+    SERVER_ERROR,
+    LOGGED_IN,
+    DENIED_PERMISSION,
+    UNKNOWN = 999
+  };
 
   explicit OAuth2();
   ~OAuth2();
 
   bool Errored() const;
-  const QString& ClientID() const;
-  const QString& AuthURI() const;
-  const QString& TokenURI() const;
-  const QStringList& RedirectURIs() const;
+
+  void RequestLogin(const QNetworkAccessManager&) const;
+  const QString& ProfileImageURL() const;
 };
 } // namespace GS
 

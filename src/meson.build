@@ -1,4 +1,5 @@
 moc_headers = [
+  'oauth.h',
   'mainwindow.h',
 ]
 qt_sources = [

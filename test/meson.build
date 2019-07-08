@@ -1,6 +1,7 @@
 src_dir = '../src/'
 
 moc_headers = [
+  src_dir + 'oauth.h',
 ]
 qt_sources = [
 ]

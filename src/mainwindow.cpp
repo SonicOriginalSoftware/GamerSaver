@@ -1,4 +1,3 @@
-#include <QResource>
 #include <QHash>
 #include <QStringListModel>
 #include <QtGui/QIcon>
@@ -64,13 +63,14 @@ void GS::MainWindow::on_gameSelector_currentTextChanged(const QString &gameName)
 void GS::MainWindow::on_refreshBtn_clicked(const bool &)
 {
   games = GS::Game::BuildGames();
-
   gameLM->setStringList(games.keys());
   if (gameLM->stringList().length() > 0) gameSelector->setCurrentText(gameLM->stringList().first());
 }
 
 void GS::MainWindow::on_loginBtn_clicked(const bool &) const
 {
-  qDebug() << "Login clicked!";
+  loginBtn->setDisabled(true);
+  oauth->RequestLogin(*nam);
+  loginBtn->setEnabled(true);
 }
 

@@ -5,27 +5,29 @@ Currently integrated with Google Drive as the cloud storage platform
 * Needs Google account to sign in and use app!
 
 # Status
-* Undergoing rewrite
+* Semi-active development
+* OAuth module getting massive overhaul
 
 # Current Features
 * List local save games for supported games
+* Theme
+* Allow extensibility with custom games list
+
+## Long-Term Features
+* Add extensibility (custom games support through user-created text file)
+* Switch to more profesional cloud storage platform if enough warrant it
 
 # Roadmap
 ## V0.1.0
-* Allow extensibility with custom games list
 * OAuth 2.0 Authorization and login for Google Drive support
 * Create support for loading a picture icon for the logged in user
 
 ## V0.2.0
 * Check access and permission to write to GamerSaver folder on user Drive account
+* More robust handling of OAuth flow
 
 ## V0.3.0
 * Implement export and import save features
-
-## Long-Term Features
-* Add extensibility (custom games support through user-created text file)
-* Theme
-* Switch to more profesional cloud storage platform if enough warrant it
 
 # Supported Games
 ## Bethesda games
@@ -50,6 +52,15 @@ Currently integrated with Google Drive as the cloud storage platform
 * meson
 * ninja
 
+# On API Keys
+Because this application utilizes the API of a third party service which it authenticates against using an API Credential method, this application can't be built without each 'forker' having their own apikey.json file.
+
+The good news is, its free and is not too painstaking to obtain one. Simply go to [Google Cloud Console](https://console.cloud.google.com). From there, create a new project, naviate to the project's Credentials page, create 'Installed Application' credentials, and then download that file.
+
+[More details can be found here](https://developers.google.com/identity/protocols/OAuth2InstalledApp#enable-apis)
+
+The downloaded client credential file needs to be renamed to 'apikey.json' and placed in the 'res' directory inside the project before building
+
 # Building
 1. `git clone https://github.com/nathanblair/GamerSaver.git`
 2. `cd GamerSaver`
@@ -69,8 +80,7 @@ Currently integrated with Google Drive as the cloud storage platform
 # Resetting Password
 * Reauthorize with the desired username. This will prompt authentication from Google and, assuming you haven't left your logged-in Google sessions available on your browser for others to use, this means of authentication is viewed as sufficient for the scope of this application.
 
-# Notes
-## Notes on permissions, authorization, and security
+# On permissions, authorization, and security
 Everything in this application runs locally. The OAuth redirect URI (the thing that allows Google to grant consent to GamerSaver to access your Google Drive account) is directed to your local loopback address (i.e. not accessible to the internet) and the app never stores information about your Google Credentials or login state.
 
 The only power GamerSaver has is listed in the scope of the consent screen you will see upon first signing in. And to elaborate on that effect, GamerSaver will not be allowed to completely erase all of your Google Drive data willy-nilly or other such disastrous operation. Its scope of access involves only access to a folder delegated to it by the API.

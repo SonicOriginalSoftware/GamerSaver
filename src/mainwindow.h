@@ -13,7 +13,8 @@ namespace GS
 {
 class OAuth2;
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
   Q_OBJECT
 
   QHash<QString, QStringList> games;
