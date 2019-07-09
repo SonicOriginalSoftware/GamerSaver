@@ -51,15 +51,6 @@ Currently integrated with Google Drive as the cloud storage platform
 * meson
 * ninja
 
-# On API Keys
-Because this application utilizes the API of a third party service which it authenticates against using an API Credential method, this application can't be built without each 'forker' having their own apikey.json file.
-
-The good news is, its free and is not too painstaking to obtain one. Simply go to [Google Cloud Console](https://console.cloud.google.com). From there, create a new project, naviate to the project's Credentials page, create 'Installed Application' credentials, and then download that file.
-
-[More details can be found here](https://developers.google.com/identity/protocols/OAuth2InstalledApp#enable-apis)
-
-The downloaded client credential file needs to be renamed to 'apikey.json' and placed in the 'res' directory inside the project before building
-
 # Building
 1. `git clone https://github.com/nathanblair/GamerSaver.git`
 2. `cd GamerSaver`
