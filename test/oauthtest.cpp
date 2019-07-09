@@ -5,11 +5,13 @@
 #include <QStringList>
 #include <QNetworkAccessManager>
 
+GSTest::OAuthTest::OAuthTest() : qnam(new QNetworkAccessManager()) { }
+GSTest::OAuthTest::~OAuthTest() { delete qnam; }
+
 int GSTest::OAuthTest::SetUp() const { return 0; }
 
 //bool GSTest::OAuthTest::Login(const GS::OAuth2 &oauth) const
 //{
-  //QNetworkAccessManager qnam{};
 //#ifdef SHOULD_FAIL
   //return oauth.RequestLogin(qnam) == GS::OAuth2::UNKNOWN;
 //#else

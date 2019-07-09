@@ -1,10 +1,10 @@
 #pragma once
 #include <QObject>
 
-class QString;
 class QTcpServer;
 class QTcpSocket;
 class QNetworkAccessManager;
+class QMessageBox;
 
 namespace GS
 {
@@ -12,17 +12,49 @@ class OAuth2 : public QObject
 {
   Q_OBJECT
 
-  struct Credentials;
-  struct Tokens;
-  struct OAuthParameters;
-  struct OAuthEndpoints;
-  struct UserProfile;
-  struct OAuthResponse;
+  struct Credentials
+  {
+    static const QString client_id;
+    static const QString redirect_uri;
+  };
+  struct OAuthParameters
+  {
+    static const QString TokenResponseType;
+    static const QString Scope;
+    static const QString Prompt;
+    static const QString State;
+  };
+  struct DiscoveryDocKeyNames
+  {
+    static const QString AuthorizationEndpointKeyName;
+    static const QString UserInfoEndpointKeyName;
+  };
+  struct OAuthEndpoints
+  {
+    static const QString GoogleDiscoveryDoc;
+    QString GoogleAuthServer;
+    QString GoogleUserInfo;
+  };
+  struct UserProfile
+  {
+    static const QString defaultName;
+    static const QString defaultURL;
+    QString pictureURL;
+    QString name;
+  };
+  struct Tokens { QString accessToken; };
 
-  Credentials *credentials;
-  Tokens *tokens;
-  UserProfile *profile;
+  static const QByteArray okResponse;
+  const QString profilePictureFileName;
 
+  UserProfile profile;
+	OAuthEndpoints endpoints;
+  Tokens tokens;
+
+  QNetworkAccessManager *qnam;
+  QMessageBox *dialog;
+
+  bool loggedIn{false};
   bool errored{false};
   const int timeout{5000};
 
@@ -30,21 +62,17 @@ class OAuth2 : public QObject
   void shutdownServer(QTcpServer&, QTcpSocket*) const;
 
 public:
-  enum State {
-    UNDEFINED,
-    SERVER_ERROR,
-    LOGGED_IN,
-    DENIED_PERMISSION,
-    UNKNOWN = 999
-  };
-
   explicit OAuth2();
   ~OAuth2();
 
+  bool LoggedIn() const;
   bool Errored() const;
-
-  void RequestLogin(const QNetworkAccessManager&) const;
-  const QString& ProfileImageURL() const;
+  void LogIn();
+  void LogOut();
+  const QString& ProfileName() const;
+  static const QString& DefaultPictureURL();
+  static const QString& DefaultName();
+  const QString& ProfilePictureURL();
 };
 } // namespace GS
 

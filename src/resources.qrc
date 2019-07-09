@@ -1,6 +1,7 @@
 <RCC>
     <qresource>
-        <file>../res/apikey.json</file>
+        <file>../res/installed_client_secret</file>
+        <file>../res/web_client_secret</file>
         <file>../res/login_placeholder.svg</file>
         <file>../res/DefaultGameList.ini</file>
         <file>../res/response.html</file>

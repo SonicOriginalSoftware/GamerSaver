@@ -12,12 +12,11 @@
 #include "mainwindow.h"
 
 GS::MainWindow::MainWindow() : games{GS::Game::BuildGames()},
-                               nam{new QNetworkAccessManager(this)},
                                gameLM{new QStringListModel(games.keys(), this)},
                                saveLM{new QStringListModel(this)},
                                gridLayoutWidget{new QWidget(this)},
                                gridLayout{new QGridLayout(gridLayoutWidget)},
-                               loginBtn{new QPushButton(QIcon(":/res/login_placeholder.svg"), "Login", gridLayoutWidget)},
+                               loginBtn{new QPushButton(QIcon(OAuth2::DefaultPictureURL()), OAuth2::DefaultName(), gridLayoutWidget)},
                                refreshBtn{new QPushButton("Refresh", gridLayoutWidget)},
                                gameSelector{new QComboBox(gridLayoutWidget)},
                                saveList{new QListView(gridLayoutWidget)},
@@ -69,8 +68,10 @@ void GS::MainWindow::on_refreshBtn_clicked(const bool &)
 
 void GS::MainWindow::on_loginBtn_clicked(const bool &) const
 {
-  loginBtn->setDisabled(true);
-  oauth->RequestLogin(*nam);
-  loginBtn->setEnabled(true);
+  oauth->LoggedIn() ? oauth->LogOut() : oauth->LogIn();
+  if (oauth->Errored()) return;
+
+  loginBtn->setText(oauth->ProfileName());
+  loginBtn->setIcon(QIcon{oauth->ProfilePictureURL()});
 }
 

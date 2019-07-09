@@ -10,11 +10,10 @@ Currently integrated with Google Drive as the cloud storage platform
 
 # Current Features
 * List local save games for supported games
-* Theme
 * Allow extensibility with custom games list
+* Theme
 
 ## Long-Term Features
-* Add extensibility (custom games support through user-created text file)
 * Switch to more profesional cloud storage platform if enough warrant it
 
 # Roadmap

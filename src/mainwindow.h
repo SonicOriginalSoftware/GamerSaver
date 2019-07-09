@@ -1,13 +1,11 @@
 #pragma once
 #include <QMainWindow>
 
-// Forward declarations
 class QListView;
 class QGridLayout;
 class QPushButton;
 class QComboBox;
 class QStringListModel;
-class QNetworkAccessManager;
 
 namespace GS
 {
@@ -19,8 +17,6 @@ class MainWindow : public QMainWindow
 
   QHash<QString, QStringList> games;
 
-  QNetworkAccessManager *nam{nullptr};
-
   QStringListModel *gameLM{nullptr};
   QStringListModel *saveLM{nullptr};
   QWidget *gridLayoutWidget{nullptr};
@@ -31,7 +27,6 @@ class MainWindow : public QMainWindow
   QListView *saveList{nullptr};
 
   OAuth2 *oauth{nullptr};
-
 
 private slots:
   void on_gameSelector_currentTextChanged(const QString &) const;

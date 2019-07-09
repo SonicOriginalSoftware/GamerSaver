@@ -10,6 +10,6 @@ struct AppManifest {
 }
 
 const QString GS::AppManifest::OrgName{"Sonic Original Software"};
-const QString GS::AppManifest::AppName{"Sonic Original Software"};
-const QString GS::AppManifest::Version{"Sonic Original Software"};
+const QString GS::AppManifest::AppName{"GamerSaver"};
+const QString GS::AppManifest::Version{"0.1.0"};
 

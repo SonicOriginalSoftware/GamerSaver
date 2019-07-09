@@ -8,6 +8,15 @@
 </head>
 <body>
   You may now close this window 
+  <script>
+    const y = window.location.hash.replace('#', '').split('&')
+    let r = {}
+    y.forEach(entry => {
+      let s = entry.split('=')
+      r[s[0]] = s[1]
+    })
+    fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(r)})
+  </script>
 </body>
 </html>
 

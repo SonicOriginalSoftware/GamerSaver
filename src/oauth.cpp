@@ -1,97 +1,40 @@
-#include "oauth.h"
 #include <QFile>
-#include <QJsonDocument>
-#include <QJsonObject>
 #include <QString>
-#include <QStringList>
-#include <QVariant>
 #include <QUuid>
+#include <QCoreApplication>
 #include <QDesktopServices>
 #include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QTcpServer>
 #include <QMessageBox>
-#include <QEventLoop>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include "oauth.h"
 
-struct GS::OAuth2::Credentials
-{
-  QString client_id;
-  QString auth_uri;
-  QString token_uri;
-  QStringList redirect_uris;
-};
+const QString GS::OAuth2::Credentials::client_id{"207822922610-jpk6ice7tsbo5ml6ig2q795ph1dnohle.apps.googleusercontent.com"};
+const QString GS::OAuth2::Credentials::redirect_uri{"http://localhost"};
+const QString GS::OAuth2::OAuthEndpoints::GoogleDiscoveryDoc{"https://accounts.google.com/.well-known/openid-configuration"};
+const QString GS::OAuth2::DiscoveryDocKeyNames::AuthorizationEndpointKeyName{"authorization_endpoint"};
+const QString GS::OAuth2::DiscoveryDocKeyNames::UserInfoEndpointKeyName{"userinfo_endpoint"};
+const QString GS::OAuth2::OAuthParameters::TokenResponseType{"token"};
+const QString GS::OAuth2::OAuthParameters::Scope{"https://www.googleapis.com/auth/drive.file profile"};
+const QString GS::OAuth2::OAuthParameters::Prompt{"select_account"};
+const QString GS::OAuth2::OAuthParameters::State{QCryptographicHash::hash(QUuid::createUuid().toByteArray(QUuid::WithoutBraces), QCryptographicHash::Sha3_256).toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals)};
+const QString GS::OAuth2::UserProfile::defaultName{"Login"};
+const QString GS::OAuth2::UserProfile::defaultURL{":/res/login_placeholder.svg"};
+const QByteArray GS::OAuth2::okResponse{"HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n"};
 
-struct GS::OAuth2::Tokens
-{
-  QString accessToken;
-  QString refreshToken;
-};
+GS::OAuth2::OAuth2() : profilePictureFileName(QCoreApplication::applicationDirPath() + "profilePic.jpg"),
+                       qnam(new QNetworkAccessManager()),
+                       dialog(new QMessageBox{QMessageBox::Icon::NoIcon,
+                                              "GamerSaver - Waiting...",
+                                              "Press Cancel to Abort the request",
+                                              QMessageBox::Cancel})
+{}
 
-struct GS::OAuth2::OAuthParameters
-{
-  static const QString AuthCodeResponseType;
-  static const QString Scope;
-  static const QString CodeChallengeMethod;
-};
+GS::OAuth2::~OAuth2() { delete qnam; delete dialog; }
 
-struct GS::OAuth2::OAuthEndpoints
-{
-  static const QString GoogleAuthServer;
-};
-
-struct GS::OAuth2::UserProfile
-{
-  QString profileURL;
-};
-
-struct GS::OAuth2::OAuthResponse
-{
-  static const QByteArray okResponse;
-};
-
-const QString GS::OAuth2::OAuthEndpoints::GoogleAuthServer{"https://accounts.google.com/o/oauth2/v2/auth"};
-const QString GS::OAuth2::OAuthParameters::AuthCodeResponseType{"code"};
-const QString GS::OAuth2::OAuthParameters::Scope{"https://www.googleapis.com/auth/drive.file"};
-const QString GS::OAuth2::OAuthParameters::CodeChallengeMethod{"S256"};
-const QByteArray GS::OAuth2::OAuthResponse::okResponse{
-  "HTTP/1.1 200 OK\r\n"
-  "Connection: close\r\n"
-  "Content-Type: text/html; charset=UTF-8\r\n\r\n"
-};
-
-GS::OAuth2::OAuth2() : credentials(new Credentials()),
-                       tokens(new Tokens()),
-                       profile(new UserProfile())
-{
-  QFile credentialFile{":/res/apikey.json"};
-  if (!credentialFile.open(QFile::ReadOnly)) {
-    errored = true;
-    return;
-  }
-  QByteArray jsonData{credentialFile.readAll()};
-  credentialFile.close();
-
-  QJsonParseError jsonErr{};
-  QJsonDocument credentialJson{QJsonDocument::fromJson(jsonData, &jsonErr)};
-  if (jsonErr.error != QJsonParseError::NoError) {
-    errored = true;
-    return;
-  }
-
-  QJsonObject json{credentialJson.object()};
-  json = json["installed"].toObject();
-
-  credentials->client_id = json["client_id"].toString();
-  credentials->auth_uri = json["auth_uri"].toString();
-  credentials->token_uri = json["token_uri"].toString();
-  credentials->redirect_uris = json["redirect_uris"].toVariant().toStringList();
-}
-
-GS::OAuth2::~OAuth2()
-{
-  delete credentials;
-  delete tokens;
-  delete profile;
-}
+bool GS::OAuth2::Errored() const { return errored; }
 
 void GS::OAuth2::shutdownServer(QTcpServer& loopbackServer) const
 {
@@ -101,70 +44,88 @@ void GS::OAuth2::shutdownServer(QTcpServer& loopbackServer) const
 
 void GS::OAuth2::shutdownServer(QTcpServer& loopbackServer, QTcpSocket* connection) const
 {
-  if (connection != 0)
-  {
-    connection->disconnectFromHost();
-    connection->deleteLater();
-  }
+  if (connection != 0) { connection->disconnectFromHost(); connection->deleteLater(); }
   shutdownServer(loopbackServer);
 }
 
-bool GS::OAuth2::Errored() const { return errored; }
-
-void GS::OAuth2::RequestLogin(const QNetworkAccessManager& qnam) const
+void GS::OAuth2::LogOut()
 {
-  // TODO Check for existing access token and refresh token
-  // If access token is found, check that it is valid
-  // If it is no longer valid, renew it using the refresh token
-  // If the refresh token is no longer valid, proceed with below
+  loggedIn = false;
+  
+  profile.name = UserProfile::defaultName;
+  profile.pictureURL = UserProfile::defaultURL;
+}
 
+void GS::OAuth2::LogIn()
+{
+  loggedIn = false;
   QFile responseHTMLFile{":/res/response.html"};
   QByteArray responseHTML;
-  if (responseHTMLFile.open(QFile::OpenModeFlag::ReadOnly))
-  {
-    responseHTML = responseHTMLFile.readAll();
-    responseHTMLFile.close();
-  } else { return; }
+  if (!responseHTMLFile.open(QFile::OpenModeFlag::ReadOnly)) return;
+  responseHTML = responseHTMLFile.readAll();
+  responseHTMLFile.close();
 
   QTcpServer loopbackServer{};
-  if (!loopbackServer.listen(QHostAddress(credentials->redirect_uris[1]))) return;
-  qDebug() << "Listening on: " << loopbackServer.serverAddress() << ":" << loopbackServer.serverPort();
+  if (!loopbackServer.listen(QHostAddress(Credentials::redirect_uri))) return;
 
-  QByteArray code_verifier{QUuid::createUuid().toByteArray(QUuid::WithoutBraces)};
-  QByteArray code_challenge{QCryptographicHash::hash(code_verifier, QCryptographicHash::Sha3_256)};
-  code_challenge = code_challenge.toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
+  QNetworkReply* discoveryReply;
+  connect(qnam, &QNetworkAccessManager::finished, dialog, &QMessageBox::accept);
+  discoveryReply = qnam->get(QNetworkRequest{QUrl{OAuthEndpoints::GoogleDiscoveryDoc}});
+  dialog->exec();
 
-  QString state{QUuid::createUuid().toString(QUuid::StringFormat::WithoutBraces)};
+  discoveryReply->deleteLater();
+  if (dialog->result() == QMessageBox::StandardButton::Cancel || discoveryReply->error() != QNetworkReply::NoError)
+  {
+    qDebug() << "Did not get discovery file!";
+    errored = true;
+    return;
+  }
+
+  QJsonObject discoveryDoc{QJsonDocument::fromJson(discoveryReply->readAll()).object()};
+  endpoints.GoogleAuthServer = discoveryDoc[DiscoveryDocKeyNames::AuthorizationEndpointKeyName].toString();
+  endpoints.GoogleUserInfo = discoveryDoc[DiscoveryDocKeyNames::UserInfoEndpointKeyName].toString();
 
   QString requestString{
-    OAuthEndpoints::GoogleAuthServer
-    + "?client_id=" + credentials->client_id
-    + "&redirect_uri=" + credentials->redirect_uris[1] + ":" + QString::number(loopbackServer.serverPort())
-    + "&response_type=" + GS::OAuth2::OAuthParameters::AuthCodeResponseType
-    + "&scope=" + GS::OAuth2::OAuthParameters::Scope
-    + "&code_challenge_method=" + GS::OAuth2::OAuthParameters::CodeChallengeMethod
-    + "&code_challenge=" + QUrl::toPercentEncoding(QString(code_challenge))
-    + "&state=" + state
+    endpoints.GoogleAuthServer
+    + "?client_id=" + Credentials::client_id
+    + "&redirect_uri=" + Credentials::redirect_uri + ":" + QString::number(loopbackServer.serverPort())
+    + "&response_type=" + OAuthParameters::TokenResponseType
+    + "&scope=" + QUrl::toPercentEncoding(OAuthParameters::Scope)
+    + "&state=" + OAuthParameters::State
+    + "&prompt=" + OAuthParameters::Prompt
   };
 
-  QMessageBox dialog;
-  dialog.setWindowTitle("GamerSaver - Waiting...");
-  dialog.setText("Press Cancel to Abort the request");
-  dialog.setStandardButtons(QMessageBox::Cancel);
-  connect(&loopbackServer, &QTcpServer::newConnection, &dialog, &QMessageBox::accept);
+  connect(&loopbackServer, &QTcpServer::newConnection, dialog, &QMessageBox::accept);
+
+  qDebug() << "Navigating to" << requestString << "for OAuth";
   QDesktopServices::openUrl(QUrl{requestString});
-  dialog.exec();
+  dialog->exec();
 
   QTcpSocket *connection{loopbackServer.nextPendingConnection()};
-  if (dialog.result() == QMessageBox::StandardButton::Cancel || connection == 0)
+  if (dialog->result() == QMessageBox::StandardButton::Cancel || connection == 0)
   {
     qDebug() << "Request was cancelled";
     shutdownServer(loopbackServer);
     return;
   }
 
-  connection->write(OAuthResponse::okResponse.constData(), OAuthResponse::okResponse.size());
-  connection->write(responseHTML);
+  connection->write(okResponse.constData(), okResponse.size());
+  connection->write(responseHTML.constData(), responseHTML.size());
+  connection->flush();
+
+  connect(&loopbackServer, &QTcpServer::newConnection, dialog, &QMessageBox::accept);
+  dialog->exec();
+
+  connection = loopbackServer.nextPendingConnection();
+  if (dialog->result() == QMessageBox::StandardButton::Cancel || connection == 0)
+  {
+    qDebug() << "Request was cancelled";
+    shutdownServer(loopbackServer);
+    return;
+  }
+
+  connection->write(okResponse.constData(), okResponse.size());
+  connection->flush();
 
   QByteArray responseData;
   connection->waitForReadyRead();
@@ -172,30 +133,74 @@ void GS::OAuth2::RequestLogin(const QNetworkAccessManager& qnam) const
 
   shutdownServer(loopbackServer, connection);
 
-  // TODO Check if the user granted permission
-  // If they did...
-  // TODO Parse the returned profile image URL
-  QString imageURL{};
-  profile->profileURL = imageURL;
+  QString response{responseData};
+  int firstIndex{response.lastIndexOf("{")};
+  QJsonObject json{QJsonDocument::fromJson(QStringRef{&response, firstIndex, response.length() - firstIndex}.toUtf8()).object()};
 
-  // TODO Parse the returned authorization code
-  QString authCode{};
+  if (json["error"].toString() != "") { qDebug() << "Error:" << json["error"]; return; }
+  else if (json["state"] != OAuthParameters::State) { qDebug() << "Request not unique!"; return; }
 
-  // TODO Use the authcode to send a new request to get the refresh and access tokens
+  tokens.accessToken = json["access_token"].toString();
 
-  // TODO Set the access and refresh tokens
-  QString returnedAccessToken{};
-  tokens->accessToken = returnedAccessToken;
-  QString returnedRefreshToken{};
-  tokens->refreshToken = returnedRefreshToken;
+  QNetworkReply *userInfoReply;
+  connect(qnam, &QNetworkAccessManager::finished, dialog, &QMessageBox::accept);
+  QNetworkRequest userInfoRequest{QUrl{endpoints.GoogleUserInfo}};
+  userInfoRequest.setRawHeader(QByteArray{"Authorization"}, QByteArray{"Bearer " + tokens.accessToken.toUtf8()});
+  userInfoReply = qnam->get(userInfoRequest);
+  dialog->exec();
 
-  // TODO Store the access and refresh tokens
+  userInfoReply->deleteLater();
+  if (dialog->result() == QMessageBox::StandardButton::Cancel || userInfoReply->error() != QNetworkReply::NoError)
+  {
+    qDebug() << "Could not retrieve user info!";
+    errored = true;
+    return;
+  }
+  QByteArray userInfoResponse{userInfoReply->readAll()};
+  QJsonObject userInfo{QJsonDocument::fromJson(userInfoResponse).object()};
+
+  profile.name = userInfo["name"].toString();
+  profile.pictureURL = userInfo["picture"].toString();
+
+  QNetworkReply* pictureReply;
+  connect(qnam, &QNetworkAccessManager::finished, dialog, &QMessageBox::accept);
+  pictureReply = qnam->get(QNetworkRequest{QUrl{profile.pictureURL}});
+  dialog->exec();
+
+  pictureReply->deleteLater();
+  if (dialog->result() == QMessageBox::StandardButton::Cancel || pictureReply->error() != QNetworkReply::NoError)
+  {
+    qDebug() << "Could not get profile picture!";
+    errored = true;
+    return;
+  }
+
+  QFile profilePictureFile{profilePictureFileName};
+  if (!profilePictureFile.open(QFile::WriteOnly))
+  {
+    qDebug() << "Could not open profile picture file!";
+    errored = true;
+    return;
+  }
+
+  QByteArray profilePicture{pictureReply->readAll()};
+  qDebug() << "Writing profile picture to" << profilePictureFileName;
+  qint64 bytesWritten{profilePictureFile.write(profilePicture)};
+  if (bytesWritten == -1 || bytesWritten != profilePicture.size())
+  {
+    qDebug() << "Could not write the profile picture!";
+    errored = true;
+  }
+  profilePictureFile.close();
+
+  loggedIn = true;
 
   return;
 }
 
-const QString& GS::OAuth2::ProfileImageURL() const
-{
-  return profile->profileURL;
-}
+bool GS::OAuth2::LoggedIn() const { return loggedIn; }
+const QString& GS::OAuth2::ProfileName() const { return profile.name; }
+const QString& GS::OAuth2::ProfilePictureURL() { return loggedIn ? profilePictureFileName : UserProfile::defaultURL; }
+const QString& GS::OAuth2::DefaultPictureURL() { return UserProfile::defaultURL; }
+const QString& GS::OAuth2::DefaultName() { return UserProfile::defaultName; }
 
