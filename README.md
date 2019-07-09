@@ -4,9 +4,10 @@ Cloud-based management of saves for games.
 Currently integrated with Google Drive as the cloud storage platform
 * Needs Google account to sign in and use app!
 
-# Status
-## V0.1.0 (pending)
-## Current Features in Active Version
+# Release
+## V0.1.0
+* (pending)
+# Current Features
 * List local save games for supported games
 * Allow extensibility with custom games list
 * Theme
@@ -65,9 +66,10 @@ Currently integrated with Google Drive as the cloud storage platform
 2. Clone to local dev environment if not done already
 3. Make adjustments to implement new feature/fix bug
 4. Adjust necessary steps and ensure all tests pass when running `ninja -C build test`
-5. Submit Pull Request (PR)
-6. ...
-7. Profit??
+5. Remember to sign your commits
+6. Submit Pull Request (PR)
+7. ...
+8. Profit??
 
 # On permissions, authorization, and security
 Everything in this application runs locally - there is no home to phone! The OAuth redirect URI (the thing that allows Google to grant consent to GamerSaver to access your Google Drive account) is directed to your local loopback address (i.e. not accessible to the internet) and the app has no access to your Google Credentials - only your Google profile name and picture (if you have them tied to your Google Account).
