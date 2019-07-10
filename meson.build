@@ -8,15 +8,8 @@ project(
   ],
 )
 
-qt_includes = [
-  '/usr/include/qt/',
-  '/usr/include/qt/QtWidgets',
-  '/usr/include/qt/QtNetwork/QNetworkAccessManager',
-]
-
 qt = import('qt5')
-qt_deps = dependency('qt5', modules: ['Widgets', 'Network'])
+qt_deps = dependency('qt5', modules: ['Core', 'Gui', 'Widgets', 'Network'])
 
-subdir('test')
+# subdir('test')
 subdir('src')
-

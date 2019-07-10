@@ -2,7 +2,7 @@ moc_headers = [
   'oauth.h',
   'mainwindow.h',
 ]
-qt_sources = [
+sources = [
   'mainwindow.cpp',
 ]
 q_resources = [
@@ -11,24 +11,47 @@ q_resources = [
 
 moc_files = qt.preprocess(
   moc_headers : moc_headers,
-  include_directories : qt_includes,
-  moc_sources : qt_sources,
+  moc_sources : sources,
   qresources: q_resources,
   dependencies: qt_deps
 )
 
-sources = [
+sources += [
   moc_files,
   'oauth.cpp',
   'game.cpp',
   'main.cpp',
-  qt_sources
 ]
 
-executable(
+GamerSaver = executable(
   'GamerSaver',
   include_directories: [],
   sources: sources,
   dependencies: qt_deps
 )
 
+# Qt5 Output shared libraries
+if build_machine.system() == 'windows'
+  qt_bin_path = find_program('qmake').path().to_lower().strip('qmake.exe')
+
+  configure_file(
+    input: qt_bin_path + 'Qt5Core.dll',
+    output: 'Qt5Core.dll',
+    copy: true,
+  )
+  configure_file(
+    input: qt_bin_path + 'Qt5Gui.dll',
+    output: 'Qt5Gui.dll',
+    copy: true,
+  )
+  configure_file(
+    input: qt_bin_path + 'Qt5Widgets.dll',
+    output: 'Qt5Widgets.dll',
+    copy: true,
+  )
+  configure_file(
+    input: qt_bin_path + 'Qt5Network.dll',
+    output: 'Qt5Network.dll',
+    copy: true,
+  )
+endif
