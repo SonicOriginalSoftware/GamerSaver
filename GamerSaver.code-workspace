@@ -1,13 +1,33 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
+	"folders": [ { "path": "." } ],
 	"extensions": {
-		"recommendations": [
-			"ms-vscode.cpptools",
-			"asabil.meson"
-		]
+		"recommendations": [ "ms-vscode.cpptools", ]
+	},
+	"launch": {
+		"configurations": [
+			{
+				"name": "Run GamerSaver - Debug",
+				"type": "cppvsdbg",
+				"request": "launch",
+				"program": "${workspaceFolder}/build/debug/src/GamerSaver.exe",
+				"args": [],
+				"stopAtEntry": false,
+				"cwd": "${workspaceFolder}/build/debug/src",
+				"environment": [],
+				"externalConsole": false
+			},
+			{
+				"name": "Run GamerSaver - Release",
+				"type": "cppvsdbg",
+				"request": "launch",
+				"program": "${workspaceFolder}/build/release/src/GamerSaver.exe",
+				"args": [],
+				"stopAtEntry": false,
+				"cwd": "${workspaceFolder}/build/release/src",
+				"environment": [],
+				"externalConsole": false
+			}
+		],
+		"compounds": []
 	}
 }

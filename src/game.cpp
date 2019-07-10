@@ -2,14 +2,16 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QSettings>
+#include <QDebug>
 
-void GS::Game::updateGames(QHash<QString, QStringList>& games, const QSettings& ini)
+void GS::Game::updateGames(QHash<QString, QStringList> &games, const QSettings &ini)
 {
-  for (const auto& eachGame : ini.childGroups())
+  for (const auto &eachGame : ini.childGroups())
   {
     QString gamePath{ini.value(eachGame + "/path").toString()};
     QDir gameDir{QDir::homePath() + QDir::separator() + gamePath};
-    if (!gameDir.exists()) continue;
+    if (!gameDir.exists())
+      continue;
 
     QString gameExt{ini.value(eachGame + "/ext").toString()};
     gameDir.setNameFilters(QStringList{gameExt});
@@ -30,4 +32,3 @@ const QHash<QString, QStringList> GS::Game::BuildGames()
 
   return games;
 }
-

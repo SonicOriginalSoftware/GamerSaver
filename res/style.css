@@ -1,7 +1,7 @@
 * {
   font-size: 18px;
-  background-color: #222222;
-  color: #f8faf8;
+  /* background-color: #222222; */
+  /* color: #f8faf8; */
 }
 
 #loginBtn {
@@ -10,6 +10,6 @@
 }
 
 #saveList {
-  background-color: #333333;
+  /* background-color: #333333; */
 }
 
