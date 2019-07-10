@@ -27,7 +27,8 @@ GamerSaver = executable(
   'GamerSaver',
   include_directories: [],
   sources: sources,
-  dependencies: qt_deps
+  dependencies: qt_deps,
+  gui_app: true,
 )
 
 # Qt5 Output shared libraries

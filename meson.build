@@ -9,7 +9,7 @@ project(
 )
 
 qt = import('qt5')
-qt_deps = dependency('qt5', modules: ['Core', 'Gui', 'Widgets', 'Network'])
+qt_deps = dependency('qt5', main: true, modules: ['Core', 'Gui', 'Widgets', 'Network'])
 
 # subdir('test')
 subdir('src')

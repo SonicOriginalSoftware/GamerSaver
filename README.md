@@ -55,8 +55,8 @@ Currently integrated with Google Drive as the cloud storage platform
 # Building
 1. `git clone https://github.com/nathanblair/GamerSaver.git`
 2. `cd GamerSaver`
-3. `meson build`
-4. `ninja -C build`
+3. `meson build/debug`
+4. `ninja -C build/debug`
 
 # Testing
 1. **After running `meson build`** `ninja -C build test`
