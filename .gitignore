@@ -6,3 +6,6 @@ Q[Tt][Mm]ake[Ff]ile
 **pro.user
 **.stash
 client_secret
+.vscode/launch.json
+.vscode/settings.json
+
