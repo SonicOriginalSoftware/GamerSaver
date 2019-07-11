@@ -11,6 +11,13 @@
             "defines": [],
             "intelliSenseMode": "msvc-x64",
             "cppStandard": "c++17"
+        },
+        {
+            "name": "linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/include/qt/**"
+            ]
         }
     ],
     "version": 4

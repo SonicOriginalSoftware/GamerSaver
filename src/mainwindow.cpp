@@ -22,7 +22,10 @@ GS::MainWindow::MainWindow() : games{GS::Game::BuildGames()},
                                saveList{new QListView(gridLayoutWidget)},
                                oauth{new OAuth2()}
 {
-  if (oauth->Errored()) this->close();
+  // TODO Should I be polling to see when this button gets enabled again?
+  // Or add a refresh button to check if it can be enabled again?
+  // Or never disable it to begin with?
+  if (oauth->Errored()) loginBtn->setEnabled(false);
 
   setWindowTitle("GamerSaver");
   setObjectName("MainWindow");
@@ -69,7 +72,6 @@ void GS::MainWindow::on_refreshBtn_clicked(const bool &)
 void GS::MainWindow::on_loginBtn_clicked(const bool &) const
 {
   oauth->LoggedIn() ? oauth->LogOut() : oauth->LogIn();
-  if (oauth->Errored()) return;
 
   loginBtn->setText(oauth->ProfileName());
   loginBtn->setIcon(QIcon{oauth->ProfilePictureURL()});

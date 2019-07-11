@@ -34,7 +34,12 @@ GS::OAuth2::OAuth2() : profilePictureFileName(QCoreApplication::applicationDirPa
 
 GS::OAuth2::~OAuth2() { delete qnam; delete dialog; }
 
+bool GS::OAuth2::LoggedIn() const { return loggedIn; }
 bool GS::OAuth2::Errored() const { return errored; }
+const QString& GS::OAuth2::ProfileName() const { return profile.name; }
+const QString& GS::OAuth2::ProfilePictureURL() { return loggedIn ? profilePictureFileName : UserProfile::defaultURL; }
+const QString& GS::OAuth2::DefaultPictureURL() { return UserProfile::defaultURL; }
+const QString& GS::OAuth2::DefaultName() { return UserProfile::defaultName; }
 
 void GS::OAuth2::shutdownServer(QTcpServer& loopbackServer) const
 {
@@ -50,19 +55,27 @@ void GS::OAuth2::shutdownServer(QTcpServer& loopbackServer, QTcpSocket* connecti
 
 void GS::OAuth2::LogOut()
 {
-  loggedIn = false;
-  
   profile.name = UserProfile::defaultName;
   profile.pictureURL = UserProfile::defaultURL;
+  QFile::remove(profilePictureFileName);
+  tokens.accessToken = "";
+  loggedIn = false;
 }
 
 void GS::OAuth2::LogIn()
 {
-  loggedIn = false;
+  // FIXME CLEAN ALL THIS UP
+  // TODO Clean up network reqests
+  //
+  // TODO Clean up the server response/write/response
+  //
+  // TODO MAKE SURE THE NAME AND PICTURE URL WILL RESET BACK TO DEFAULTS
+  // EVEN IF THE USER CANCELS A NETWORK REQUEST
+  LogOut();
+
   QFile responseHTMLFile{":/res/response.html"};
-  QByteArray responseHTML;
   if (!responseHTMLFile.open(QFile::OpenModeFlag::ReadOnly)) return;
-  responseHTML = responseHTMLFile.readAll();
+  QByteArray responseHTML{responseHTMLFile.readAll()};
   responseHTMLFile.close();
 
   QTcpServer loopbackServer{};
@@ -102,7 +115,7 @@ void GS::OAuth2::LogIn()
   dialog->exec();
 
   QTcpSocket *connection{loopbackServer.nextPendingConnection()};
-  if (dialog->result() == QMessageBox::StandardButton::Cancel || connection == 0)
+  if (dialog->result() == QMessageBox::StandardButton::Cancel || connection == nullptr)
   {
     qDebug() << "Request was cancelled";
     shutdownServer(loopbackServer);
@@ -113,11 +126,12 @@ void GS::OAuth2::LogIn()
   connection->write(responseHTML.constData(), responseHTML.size());
   connection->flush();
 
+  // Wait for the page to send back the access_token or error information
   connect(&loopbackServer, &QTcpServer::newConnection, dialog, &QMessageBox::accept);
   dialog->exec();
 
   connection = loopbackServer.nextPendingConnection();
-  if (dialog->result() == QMessageBox::StandardButton::Cancel || connection == 0)
+  if (dialog->result() == QMessageBox::StandardButton::Cancel || connection == nullptr)
   {
     qDebug() << "Request was cancelled";
     shutdownServer(loopbackServer);
@@ -161,6 +175,7 @@ void GS::OAuth2::LogIn()
 
   profile.name = userInfo["name"].toString();
   profile.pictureURL = userInfo["picture"].toString();
+  loggedIn = true;
 
   QNetworkReply* pictureReply;
   connect(qnam, &QNetworkAccessManager::finished, dialog, &QMessageBox::accept);
@@ -193,14 +208,6 @@ void GS::OAuth2::LogIn()
   }
   profilePictureFile.close();
 
-  loggedIn = true;
-
   return;
 }
-
-bool GS::OAuth2::LoggedIn() const { return loggedIn; }
-const QString& GS::OAuth2::ProfileName() const { return profile.name; }
-const QString& GS::OAuth2::ProfilePictureURL() { return loggedIn ? profilePictureFileName : UserProfile::defaultURL; }
-const QString& GS::OAuth2::DefaultPictureURL() { return UserProfile::defaultURL; }
-const QString& GS::OAuth2::DefaultName() { return UserProfile::defaultName; }
 
