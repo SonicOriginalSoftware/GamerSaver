@@ -29,5 +29,10 @@
 			}
 		],
 		"compounds": []
+	},
+	"settings": {
+		"files.associations": {
+			"qfile": "cpp"
+		}
 	}
 }

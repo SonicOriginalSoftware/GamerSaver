@@ -4,6 +4,7 @@
 class QTcpServer;
 class QTcpSocket;
 class QNetworkAccessManager;
+class QNetworkRequest;
 class QMessageBox;
 
 namespace GS
@@ -12,6 +13,14 @@ class OAuth2 : public QObject
 {
   Q_OBJECT
 
+  enum ReturnCodes
+  {
+    OK,
+    SSL_ERR,
+    NETWORK_ERR,
+    CANCELLED,
+    UNHANDLED
+  };
   struct Credentials
   {
     static const QString client_id;
@@ -44,6 +53,7 @@ class OAuth2 : public QObject
   };
   struct Tokens { QString accessToken; };
 
+  static const QByteArray responseHTML;
   static const QByteArray okResponse;
   const QString profilePictureFileName;
 
@@ -59,7 +69,10 @@ class OAuth2 : public QObject
   const int timeout{5000};
 
   void shutdownServer(QTcpServer&) const;
-  void shutdownServer(QTcpServer&, QTcpSocket*) const;
+  ReturnCodes get(const QNetworkRequest&, QByteArray&) const;
+  ReturnCodes populateGoogleEndpoints();
+  ReturnCodes promptForConsent(QByteArray&) const;
+  ReturnCodes awaitAndRespondOnLoopback(const QByteArray&, QByteArray&) const;
 
 public:
   explicit OAuth2();
@@ -75,4 +88,3 @@ public:
   const QString& ProfilePictureURL();
 };
 } // namespace GS
-

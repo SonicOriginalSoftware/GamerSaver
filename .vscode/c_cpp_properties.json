@@ -6,7 +6,9 @@
                 "${workspaceFolder}/**",
                 "C:\\Qt\\5.13.0\\msvc2017_64\\include\\**",
                 "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.21.27702\\include",
-                "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.17763.0\\**"
+                "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.17763.0\\**",
+                "C:\\Program Files\\MicrosoftVisualStudio\\VC\\Tools\\MSVC\\14.21.27702\\include",
+                "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.18362.0\\**"
             ],
             "defines": [],
             "intelliSenseMode": "msvc-x64",
