@@ -4,6 +4,7 @@
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QListView>
+#include <QtWidgets/QStatusBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
 #include <QtNetwork/QNetworkAccessManager>
@@ -20,12 +21,9 @@ GS::MainWindow::MainWindow() : games{GS::Game::BuildGames()},
                                refreshBtn{new QPushButton("Refresh", gridLayoutWidget)},
                                gameSelector{new QComboBox(gridLayoutWidget)},
                                saveList{new QListView(gridLayoutWidget)},
-                               oauth{new OAuth2()}
+                               oauth{new OAuth2(statusBar())}
 {
-  // TODO Should I be polling to see when this button gets enabled again?
-  // Or add a refresh button to check if it can be enabled again?
-  // Or never disable it to begin with?
-  if (oauth->Errored()) loginBtn->setEnabled(false);
+  if (oauth->Errored()) return;
 
   setWindowTitle("GamerSaver");
   setObjectName("MainWindow");
@@ -47,6 +45,7 @@ GS::MainWindow::MainWindow() : games{GS::Game::BuildGames()},
 
   saveList->setModel(saveLM);
   gameSelector->setModel(gameLM);
+  setBaseSize(baseW, baseH);
 }
 
 GS::MainWindow::~MainWindow()

@@ -15,6 +15,8 @@ class MainWindow : public QMainWindow
 {
   Q_OBJECT
 
+  static const int baseW{800};
+  static const int baseH{400};
   QHash<QString, QStringList> games;
 
   QStringListModel *gameLM{nullptr};

@@ -6,6 +6,7 @@ class QTcpSocket;
 class QNetworkAccessManager;
 class QNetworkRequest;
 class QMessageBox;
+class QStatusBar;
 
 namespace GS
 {
@@ -19,7 +20,8 @@ class OAuth2 : public QObject
     SSL_ERR,
     NETWORK_ERR,
     CANCELLED,
-    UNHANDLED
+    UNHANDLED,
+    SERVER_ERR
   };
   struct Credentials
   {
@@ -61,21 +63,23 @@ class OAuth2 : public QObject
 	OAuthEndpoints endpoints;
   Tokens tokens;
 
+  QStatusBar *statusBar;
   QNetworkAccessManager *qnam;
   QMessageBox *dialog;
 
   bool loggedIn{false};
-  bool errored{false};
+  bool errored{true};
   const int timeout{5000};
 
   void shutdownServer(QTcpServer&) const;
   ReturnCodes get(const QNetworkRequest&, QByteArray&) const;
   ReturnCodes populateGoogleEndpoints();
   ReturnCodes promptForConsent(QByteArray&) const;
-  ReturnCodes awaitAndRespondOnLoopback(const QByteArray&, QByteArray&) const;
+  ReturnCodes awaitAndRespondOnLoopback(QTcpServer&, const QByteArray&) const;
+  ReturnCodes awaitAndRespondOnLoopback(QTcpServer&, const QByteArray&, QByteArray&) const;
 
 public:
-  explicit OAuth2();
+  explicit OAuth2(QStatusBar*);
   ~OAuth2();
 
   bool LoggedIn() const;
