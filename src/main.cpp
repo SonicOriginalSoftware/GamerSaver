@@ -1,6 +1,6 @@
 #include <QApplication>
+#include <QDesktopWidget>
 #include <QFile>
-#include <QDebug>
 #include "appmanifest.cpp"
 #include "mainwindow.h"
 
@@ -10,7 +10,6 @@ void tryToSetStylesheet(QApplication& a)
   QString styleFileName = QFile::exists(customFileName) ? customFileName : ":/res/style.css";
 
   QFile styleFile{styleFileName};
-  qDebug() << "Setting stylesheet to that of" << styleFileName;
   if (styleFile.open(QFile::ReadOnly)) a.setStyleSheet(styleFile.readAll());
 }
 
@@ -23,8 +22,16 @@ int main(int argc, char *argv[]) {
   tryToSetStylesheet(a);
 
   GS::MainWindow w{};
+  w.ensurePolished();
+  int windowWidth{w.size().width()};
+  int windowHeight{w.size().height()};
+
+  w.setGeometry(((a.desktop()->screen()->width() - windowWidth) / 2),
+                ((a.desktop()->screen()->height() - windowHeight) / 2),
+                windowWidth,
+                windowHeight
+               );
   w.show();
 
   return a.exec();
 }
-

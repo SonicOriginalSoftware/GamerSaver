@@ -1,5 +1,4 @@
 #pragma once
-#include <QObject>
 
 class QTcpServer;
 class QTcpSocket;
@@ -10,14 +9,12 @@ class QStatusBar;
 
 namespace GS
 {
-class OAuth2 : public QObject
+class OAuth2
 {
-  Q_OBJECT
 
   enum ReturnCodes
   {
     OK,
-    SSL_ERR,
     NETWORK_ERR,
     CANCELLED,
     UNHANDLED,
@@ -70,13 +67,15 @@ class OAuth2 : public QObject
   bool loggedIn{false};
   bool errored{true};
   const int timeout{5000};
+  const int messageTimeout{5000};
 
   void shutdownServer(QTcpServer&) const;
   ReturnCodes get(const QNetworkRequest&, QByteArray&) const;
   ReturnCodes populateGoogleEndpoints();
-  ReturnCodes promptForConsent(QByteArray&) const;
+  QUrl buildPromptURL(const int&) const;
   ReturnCodes awaitAndRespondOnLoopback(QTcpServer&, const QByteArray&) const;
   ReturnCodes awaitAndRespondOnLoopback(QTcpServer&, const QByteArray&, QByteArray&) const;
+  ReturnCodes promptForConsent(QByteArray&) const;
 
 public:
   explicit OAuth2(QStatusBar*);

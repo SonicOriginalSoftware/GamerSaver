@@ -1,15 +1,12 @@
 * {
   font-size: 18px;
-  /* background-color: #222222; */
-  /* color: #f8faf8; */
 }
+
+/* QListView {
+  min-width: 1000px;
+} */
 
 #loginBtn {
   qproperty-iconSize: 48px;
   font-size: 24px;
 }
-
-#saveList {
-  /* background-color: #333333; */
-}
-

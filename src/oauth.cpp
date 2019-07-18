@@ -1,3 +1,4 @@
+#include <QObject>
 #include <QFile>
 #include <QString>
 #include <QUuid>
@@ -35,8 +36,9 @@ GS::OAuth2::OAuth2(QStatusBar* mainWindowStatusBar) :
                          "Press Cancel to abort the request",
                          QMessageBox::Cancel}}
 {
-  connect(qnam, &QNetworkAccessManager::finished, dialog, &QMessageBox::accept);
   LogOut();
+
+  QObject::connect(qnam, &QNetworkAccessManager::finished, dialog, &QMessageBox::accept);
   errored = false;
 }
 
@@ -52,7 +54,7 @@ const QString& GS::OAuth2::DefaultName() { return UserProfile::defaultName; }
 void GS::OAuth2::shutdownServer(QTcpServer& loopbackServer) const
 {
   loopbackServer.close();
-  statusBar->showMessage("Server stopped listening");
+  statusBar->showMessage("Server stopped listening", messageTimeout);
 }
 
 GS::OAuth2::ReturnCodes GS::OAuth2::awaitAndRespondOnLoopback(QTcpServer& loopbackServer, const QByteArray& response) const
@@ -66,31 +68,25 @@ void GS::OAuth2::LogOut()
   QFile::remove(profilePictureFileName);
 
   loggedIn = false;
-  errored = false;
   profile.name = UserProfile::defaultName;
   profile.pictureURL = UserProfile::defaultURL;
   tokens.accessToken = "";
+  statusBar->showMessage("Logged out");
+  errored = false;
 }
 
 GS::OAuth2::ReturnCodes GS::OAuth2::get(const QNetworkRequest& request, QByteArray& response) const
 {
-  QNetworkReply *reply{qnam->get(request)};
-  dialog->exec();
-  reply->deleteLater();
-
-  if (dialog->result() == QMessageBox::StandardButton::Cancel) return ReturnCodes::CANCELLED;
-
-  switch (reply->error())
+  ReturnCodes returnCode{ReturnCodes::CANCELLED};
+  QNetworkReply* reply{qnam->get(request)};
+  if (dialog->exec() == QDialog::Accepted)
   {
-    case QNetworkReply::NoError:
-      break;
-    case QNetworkReply::SslHandshakeFailedError:
-      return ReturnCodes::SSL_ERR;
-    default:
-      return ReturnCodes::NETWORK_ERR;
+    returnCode = (reply->error() == QNetworkReply::NoError) ? ReturnCodes::OK : ReturnCodes::NETWORK_ERR;
+    response = reply->readAll();
   }
-  response = reply->readAll();
-  return ReturnCodes::OK;
+
+  delete reply;
+  return returnCode;
 }
 
 GS::OAuth2::ReturnCodes GS::OAuth2::populateGoogleEndpoints()
@@ -103,6 +99,17 @@ GS::OAuth2::ReturnCodes GS::OAuth2::populateGoogleEndpoints()
   endpoints.GoogleAuthServer = discoveryDocObject[DiscoveryDocKeyNames::AuthorizationEndpointKeyName].toString();
   endpoints.GoogleUserInfo = discoveryDocObject[DiscoveryDocKeyNames::UserInfoEndpointKeyName].toString();
   return OK;
+}
+
+QUrl GS::OAuth2::buildPromptURL(const int& port) const
+{
+  return QUrl{endpoints.GoogleAuthServer
+    + "?client_id=" + Credentials::client_id
+    + "&redirect_uri=" + Credentials::redirect_uri + ":" + QString::number(port)
+    + "&response_type=" + OAuthParameters::TokenResponseType
+    + "&scope=" + QUrl::toPercentEncoding(OAuthParameters::Scope)
+    + "&state=" + OAuthParameters::State
+    + "&prompt=" + OAuthParameters::Prompt};
 }
 
 GS::OAuth2::ReturnCodes GS::OAuth2::awaitAndRespondOnLoopback(QTcpServer& loopbackServer, const QByteArray& response, QByteArray& reply) const
@@ -127,21 +134,12 @@ GS::OAuth2::ReturnCodes GS::OAuth2::promptForConsent(QByteArray& consentResponse
   if (!loopbackServer.listen(QHostAddress(Credentials::redirect_uri))) return ReturnCodes::SERVER_ERR;
 
   ReturnCodes returnCode{ReturnCodes::UNHANDLED};
-  connect(&loopbackServer, &QTcpServer::newConnection, dialog, &QMessageBox::accept);
-  if (QDesktopServices::openUrl(QUrl{
-    endpoints.GoogleAuthServer
-    + "?client_id=" + Credentials::client_id
-    + "&redirect_uri=" + Credentials::redirect_uri + ":" + QString::number(loopbackServer.serverPort())
-    + "&response_type=" + OAuthParameters::TokenResponseType
-    + "&scope=" + QUrl::toPercentEncoding(OAuthParameters::Scope)
-    + "&state=" + OAuthParameters::State
-    + "&prompt=" + OAuthParameters::Prompt
-  }))
+  QObject::connect(&loopbackServer, &QTcpServer::newConnection, dialog, &QMessageBox::accept);
+  if (QDesktopServices::openUrl(buildPromptURL(loopbackServer.serverPort())))
   {
     returnCode = ReturnCodes::CANCELLED;
     if (awaitAndRespondOnLoopback(loopbackServer, QByteArray{okResponse + responseHTML}, consentResponse) == ReturnCodes::OK)
     {
-      connect(&loopbackServer, &QTcpServer::newConnection, dialog, &QMessageBox::accept);
       if (awaitAndRespondOnLoopback(loopbackServer, QByteArray{okResponse}, consentResponse) == ReturnCodes::OK)
       {
         returnCode = ReturnCodes::OK;
@@ -162,9 +160,6 @@ void GS::OAuth2::LogIn()
   {
     case ReturnCodes::CANCELLED:
       statusBar->showMessage("Discovery request cancelled!");
-      return;
-    case ReturnCodes::SSL_ERR:
-      statusBar->showMessage("SSL Errors were generated! Make sure you have an SSL implementation installed!");
       return;
     case ReturnCodes::NETWORK_ERR:
       statusBar->showMessage("Discovery endpoint could not be reached!");
@@ -193,8 +188,16 @@ void GS::OAuth2::LogIn()
   int firstIndex{response.lastIndexOf("{")};
   QJsonObject json{QJsonDocument::fromJson(QStringRef{&response, firstIndex, response.length() - firstIndex}.toUtf8()).object()};
 
-  if (json["error"].toString() != "") { qDebug() << "Error:" << json["error"]; return; }
-  else if (json["state"] != OAuthParameters::State) { qDebug() << "Request not unique!"; return; }
+  if (json["error"].toString() != "")
+  {
+    statusBar->showMessage("Error: " + json["error"].toString());
+    return;
+  }
+  else if (json["state"] != OAuthParameters::State)
+  {
+    statusBar->showMessage("Request was not unique!");
+    return;
+  }
 
   tokens.accessToken = json["access_token"].toString();
 
@@ -219,6 +222,7 @@ void GS::OAuth2::LogIn()
   profile.pictureURL = userInfo["picture"].toString();
   loggedIn = true;
   errored = false;
+  statusBar->showMessage("Logged in");
 
   QByteArray profilePicture{""};
   QFile profilePictureFile{profilePictureFileName};
@@ -242,4 +246,3 @@ void GS::OAuth2::LogIn()
 
   return;
 }
-

@@ -23,7 +23,16 @@ GS::MainWindow::MainWindow() : games{GS::Game::BuildGames()},
                                saveList{new QListView(gridLayoutWidget)},
                                oauth{new OAuth2(statusBar())}
 {
-  if (oauth->Errored()) return;
+  if (!QSslSocket::supportsSsl())
+  {
+    statusBar()->showMessage("No OpenSSL detected. Please install and add to path: " + QSslSocket::sslLibraryBuildVersionString());
+    loginBtn->setEnabled(false);
+  }
+  else if (oauth->Errored())
+  {
+    statusBar()->showMessage("An error occurred preparing app resources. Try reopening the application.");
+    return;
+  }
 
   setWindowTitle("GamerSaver");
   setObjectName("MainWindow");
@@ -40,12 +49,10 @@ GS::MainWindow::MainWindow() : games{GS::Game::BuildGames()},
   gridLayout->addWidget(refreshBtn, 0, 4, 1, 1);
   gridLayout->addWidget(saveList, 1, 0, 1, 5);
   gridLayout->addWidget(loginBtn, 2, 0, 1, 5);
-
   QMetaObject::connectSlotsByName(this);
 
   saveList->setModel(saveLM);
   gameSelector->setModel(gameLM);
-  setBaseSize(baseW, baseH);
 }
 
 GS::MainWindow::~MainWindow()

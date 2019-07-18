@@ -2,7 +2,6 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QSettings>
-#include <QDebug>
 
 void GS::Game::updateGames(QHash<QString, QStringList> &games, const QSettings &ini)
 {

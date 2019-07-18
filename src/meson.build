@@ -1,5 +1,4 @@
 moc_headers = [
-  'oauth.h',
   'mainwindow.h',
 ]
 sources = [

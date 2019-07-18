@@ -14,7 +14,8 @@
 				"stopAtEntry": false,
 				"cwd": "${workspaceFolder}/build/debug/src",
 				"environment": [],
-				"externalConsole": false
+				"externalConsole": false,
+				"logging": { "moduleLoad": false }
 			},
 			{
 				"name": "Run GamerSaver - Release",
@@ -25,14 +26,10 @@
 				"stopAtEntry": false,
 				"cwd": "${workspaceFolder}/build/release/src",
 				"environment": [],
-				"externalConsole": false
+				"externalConsole": false,
+				"logging": { "moduleLoad": false }
 			}
 		],
 		"compounds": []
-	},
-	"settings": {
-		"files.associations": {
-			"qfile": "cpp"
-		}
 	}
 }
