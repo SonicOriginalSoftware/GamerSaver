@@ -66,7 +66,6 @@ class OAuth2
 
   bool loggedIn{false};
   bool errored{true};
-  const int timeout{5000};
   const int messageTimeout{5000};
 
   void shutdownServer(QTcpServer&) const;
