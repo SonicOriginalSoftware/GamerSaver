@@ -6,47 +6,49 @@
         {
             "label": "Generate Debug",
             "type": "shell",
-            "command": "meson build/debug",
+            "command": "meson build\\debug\\windows",
             "group": "build",
-            "problemMatcher": []
-        },
-        {
-            "label": "Generate Release",
-            "type": "shell",
-            "command": "meson build/debug",
-            "group": "build"
         },
         {
             "label": "Build Debug (Ninja)",
             "type": "shell",
-            "command": "ninja -C build/debug",
-            "group": "build",
-            "problemMatcher": []
-        },
-        {
-            "label": "Build Release (Ninja)",
-            "type": "shell",
-            "command": "ninja -C build/release",
-            "group": "build",
-            "problemMatcher": []
+            "command": "vcvars64 && ninja -C build\\debug\\windows",
+            "isBackground": false,
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "dedicated",
+                "showReuseMessage": true,
+                "clear": true
+            },
         },
         {
             "label": "Wipe debug",
             "type": "shell",
-            "command": "meson --wipe build/debug",
-            "problemMatcher": []
-        },
-        {
-            "label": "Wipe Release",
-            "type": "shell",
-            "command": "meson --wipe build/release",
+            "command": "meson --wipe build\\debug\\windows",
             "problemMatcher": []
         },
         {
             "label": "Run Tests",
             "type": "shell",
-            "command": "meson -C build/debug test",
-            "group": "test"
+            "command": "vcvars64 && meson test -C build\\debug\\windows",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "dedicated",
+                "showReuseMessage": true,
+                "clear": true
+            },
         }
     ]
 }

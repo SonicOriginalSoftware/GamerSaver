@@ -18,33 +18,16 @@ moc_files = qt.preprocess(
 sources += [
   moc_files,
   src_dir + 'oauth.cpp',
-  'oauthtest.cpp',
+  'OAuth/test_populategoogleendpoints.cpp',
 ]
 
-OAuthNegativeTest = executable(
-  'OAuthNegativeTest',
-  include_directories: [src_dir],
-  sources: sources,
-  dependencies: qt_deps,
-  build_by_default: false,
-  cpp_args: ['-DSHOULD_FAIL=true'],
-)
-
-OAuthTest = executable(
-  'OAuthTest',
-  include_directories: [src_dir],
-  sources: sources,
-  dependencies: qt_deps,
-  build_by_default: false,
-)
-
 test(
-  'OAuthNegativeTest',
-  OAuthNegativeTest,
-  should_fail: true
-)
-
-test(
-  'OAuthTest',
-  OAuthTest,
+  'PopulateGoogleEndpoints',
+  executable(
+    'PopulateGoogleEndpoints',
+    include_directories: [src_dir],
+    sources: sources,
+    dependencies: qt_deps,
+    build_by_default: false,
+  )
 )

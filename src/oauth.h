@@ -1,25 +1,37 @@
 #pragma once
 
-class QTcpServer;
-class QTcpSocket;
+class QString;
+class QByteArray;
+// class QTcpServer;
 class QNetworkAccessManager;
 class QNetworkRequest;
-class QMessageBox;
-class QStatusBar;
 
 namespace GS
 {
+enum ReturnCodes
+{
+  OK,
+  NETWORK_ERR,
+  CANCELLED,
+  UNHANDLED,
+  SERVER_ERR,
+  IO_ERR,
+  CONSENT_DENIED,
+  NON_UNIQUE_REQUEST,
+  CONSENT_ERR
+};
+
 class OAuth2
 {
-
-  enum ReturnCodes
+public:
+  const struct OAuthEndpoints
   {
-    OK,
-    NETWORK_ERR,
-    CANCELLED,
-    UNHANDLED,
-    SERVER_ERR
+    static const QString GoogleDiscoveryDoc;
+    QString GoogleAuthServer;
+    QString GoogleUserInfo;
   };
+
+private:
   struct Credentials
   {
     static const QString client_id;
@@ -37,12 +49,6 @@ class OAuth2
     static const QString AuthorizationEndpointKeyName;
     static const QString UserInfoEndpointKeyName;
   };
-  struct OAuthEndpoints
-  {
-    static const QString GoogleDiscoveryDoc;
-    QString GoogleAuthServer;
-    QString GoogleUserInfo;
-  };
   struct UserProfile
   {
     static const QString defaultName;
@@ -50,7 +56,7 @@ class OAuth2
     QString pictureURL;
     QString name;
   };
-  struct Tokens { QString accessToken; };
+  struct Tokens { QByteArray accessToken; };
 
   static const QByteArray responseHTML;
   static const QByteArray okResponse;
@@ -60,30 +66,27 @@ class OAuth2
 	OAuthEndpoints endpoints;
   Tokens tokens;
 
-  QStatusBar *statusBar;
-  QNetworkAccessManager *qnam;
-  QMessageBox *dialog;
+  QByteArray consentResponse;
+  QJsonObject responseAsJson;
+  QNetworkAccessManager& qnam;
+  QTcpServer& server;
 
-  bool loggedIn{false};
-  bool errored{true};
+  bool supportsSSL{true};
   const int messageTimeout{5000};
 
-  void shutdownServer(QTcpServer&) const;
-  ReturnCodes get(const QNetworkRequest&, QByteArray&) const;
-  ReturnCodes populateGoogleEndpoints();
-  QUrl buildPromptURL(const int&) const;
-  ReturnCodes awaitAndRespondOnLoopback(QTcpServer&, const QByteArray&) const;
-  ReturnCodes awaitAndRespondOnLoopback(QTcpServer&, const QByteArray&, QByteArray&) const;
-  ReturnCodes promptForConsent(QByteArray&) const;
+  const ReturnCodes get(const QNetworkRequest&, QByteArray&) const;
+  const ReturnCodes awaitAndRespondToServer();
 
 public:
-  explicit OAuth2(QStatusBar*);
-  ~OAuth2();
+  explicit OAuth2(QNetworkAccessManager&, QTcpServer&);
 
-  bool LoggedIn() const;
-  bool Errored() const;
-  void LogIn();
-  void LogOut();
+  const bool SSLSupported() const;
+  const void LogOut();
+  const ReturnCodes PopulateGoogleEndpoints();
+  const ReturnCodes PromptForConsent();
+  const ReturnCodes UpdateProfilePicture() const;
+  const ReturnCodes HandleConsent();
+  const ReturnCodes SetUser();
   const QString& ProfileName() const;
   static const QString& DefaultPictureURL();
   static const QString& DefaultName();

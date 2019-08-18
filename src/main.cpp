@@ -1,17 +1,13 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QFile>
+#include <QStyle>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QTcpServer>
+#include <QMessageBox>
 #include "appmanifest.cpp"
 #include "mainwindow.h"
-
-void setStylesheet(QApplication& a)
-{
-  QString customFileName = QCoreApplication::applicationDirPath() + "/styles/custom.css";
-  QString styleFileName = QFile::exists(customFileName) ? customFileName : ":/res/style.css";
-
-  QFile styleFile{styleFileName};
-  if (styleFile.open(QFile::ReadOnly)) a.setStyleSheet(styleFile.readAll());
-}
+#include "oauth.h"
 
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
@@ -19,18 +15,37 @@ int main(int argc, char *argv[]) {
   QCoreApplication::setApplicationName(GS::AppManifest::AppName);
   QCoreApplication::setApplicationVersion(GS::AppManifest::Version);
 
-  setStylesheet(a);
+  a.setStyleSheet(
+    "* {"
+      "font-size: 18px;"
+    "}"
+    ""
+    "#loginBtn {"
+      "qproperty-iconSize: 48px;"
+      "font-size: 24px;"
+    "}"
+  );
 
-  GS::MainWindow w{};
-  w.move(500, 500);
-  //int windowWidth{w.size().width()};
-  //int windowHeight{w.size().height()};
+  QFile styleFile{QCoreApplication::applicationDirPath() + "/styles/custom.css"};
+  if (styleFile.open(QFile::ReadOnly)) a.setStyleSheet(styleFile.readAll());
 
-  //w.setGeometry(((a.desktop()->screen()->width() - windowWidth) / 2),
-                //((a.desktop()->screen()->height() - windowHeight) / 2),
-                //windowWidth,
-                //windowHeight
-               //);
+  QMessageBox dialog{QMessageBox::Icon::NoIcon,
+                         "GamerSaver - Waiting...",
+                         "Press Cancel to abort the request",
+                         QMessageBox::Cancel};
+  QNetworkAccessManager qnam{};
+  QTcpServer loopbackServer{};
+  QObject::connect(&qnam, &QNetworkAccessManager::finished, &dialog, &QMessageBox::accept);
+  QObject::connect(&loopbackServer, &QTcpServer::newConnection, &dialog, &QMessageBox::accept);
+
+  GS::OAuth2 oauth{qnam, loopbackServer};
+  GS::MainWindow w{oauth};
+
+  w.setFixedSize(1000, 500);
+  w.move((qApp->desktop()->availableGeometry().width() / 2)
+         - (w.width() / 2),
+         (qApp->desktop()->availableGeometry().height() / 2)
+         - (w.height() / 2));
   w.show();
 
   return a.exec();
