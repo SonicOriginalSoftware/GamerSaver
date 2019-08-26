@@ -17,6 +17,10 @@ moc_files = qt.preprocess(
 
 sources += [
   moc_files,
+  'oauthloopbackserver.cpp',
+  'oauthnetaccess.cpp',
+  'appmanifest.cpp',
+  'googleoauth.cpp',
   'oauth.cpp',
   'game.cpp',
   'main.cpp',

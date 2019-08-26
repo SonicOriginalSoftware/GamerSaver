@@ -1,9 +1,18 @@
 #pragma once
 #include <QMainWindow>
+#include <QStringListModel>
+#include <QGridLayout>
+#include <QPushButton>
+#include <QComboBox>
+#include <QListView>
+
+class QMessageBox;
 
 namespace GS
 {
-class OAuth2;
+class OAuthNetAccess;
+class OAuthLoopbackServer;
+class GoogleOAuth;
 
 class MainWindow : public QMainWindow
 {
@@ -20,7 +29,15 @@ class MainWindow : public QMainWindow
   QComboBox gameSelector{};
   QListView saveList{};
 
-  OAuth2& _oauth;
+  static const QString loginBtnDefaultValue;
+  static const QString defaultProfilePictureFilePath;
+
+  const QString profilePictureFilePath;
+  QMessageBox& dialog;
+  GoogleOAuth& googleOAuth;
+  OAuthNetAccess& oauthNetAccess;
+
+  void refresh();
 
 private slots:
   void on_gameSelector_currentTextChanged(const QString &);
@@ -28,6 +45,7 @@ private slots:
   void on_loginBtn_clicked(const bool &);
 
 public:
-  explicit MainWindow(OAuth2&);
+  explicit MainWindow(GoogleOAuth&, OAuthNetAccess&, QMessageBox&);
 };
 } // namespace GS
+

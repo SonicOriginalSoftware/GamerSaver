@@ -1,15 +1,8 @@
 #pragma once
+#include <QString>
 
-class QString;
-class QByteArray;
-// class QTcpServer;
-class QNetworkAccessManager;
-class QNetworkRequest;
-
-namespace GS
-{
-enum ReturnCodes
-{
+namespace GS {
+enum ReturnCodes {
   OK,
   NETWORK_ERR,
   CANCELLED,
@@ -21,75 +14,59 @@ enum ReturnCodes
   CONSENT_ERR
 };
 
-class OAuth2
-{
-public:
-  const struct OAuthEndpoints
-  {
-    static const QString GoogleDiscoveryDoc;
-    QString GoogleAuthServer;
-    QString GoogleUserInfo;
+class OAuth2 {
+protected:
+  struct OAuthEndpoints {
+    static const QString discoveryDoc;
+    QString auth;
+    QString userInfo;
   };
 
-private:
-  struct Credentials
-  {
-    static const QString client_id;
-    static const QString redirect_uri;
+  struct UserProfile {
+    QString pictureURL;
+    QString name;
   };
-  struct OAuthParameters
-  {
+
+  struct Tokens {
+    QByteArray accessToken;
+  };
+
+  struct OAuthParameters {
     static const QString TokenResponseType;
     static const QString Scope;
     static const QString Prompt;
     static const QString State;
   };
-  struct DiscoveryDocKeyNames
-  {
-    static const QString AuthorizationEndpointKeyName;
-    static const QString UserInfoEndpointKeyName;
-  };
-  struct UserProfile
-  {
-    static const QString defaultName;
-    static const QString defaultURL;
-    QString pictureURL;
-    QString name;
-  };
-  struct Tokens { QByteArray accessToken; };
 
-  static const QByteArray responseHTML;
-  static const QByteArray okResponse;
+  const QString client_id;
+  const QString redirect_uri;
+  OAuthEndpoints endpoints;
+
+private:
   const QString profilePictureFileName;
 
   UserProfile profile;
-	OAuthEndpoints endpoints;
   Tokens tokens;
 
-  QByteArray consentResponse;
-  QJsonObject responseAsJson;
-  QNetworkAccessManager& qnam;
-  QTcpServer& server;
-
-  bool supportsSSL{true};
-  const int messageTimeout{5000};
-
-  const ReturnCodes get(const QNetworkRequest&, QByteArray&) const;
-  const ReturnCodes awaitAndRespondToServer();
-
 public:
-  explicit OAuth2(QNetworkAccessManager&, QTcpServer&);
+  explicit OAuth2(const QString&, const QString&);
 
-  const bool SSLSupported() const;
-  const void LogOut();
-  const ReturnCodes PopulateGoogleEndpoints();
-  const ReturnCodes PromptForConsent();
-  const ReturnCodes UpdateProfilePicture() const;
-  const ReturnCodes HandleConsent();
-  const ReturnCodes SetUser();
-  const QString& ProfileName() const;
-  static const QString& DefaultPictureURL();
-  static const QString& DefaultName();
-  const QString& ProfilePictureURL();
+  const QString& GetProfileName() const;
+  const QString& GetProfilePictureURL() const;
+  const QString& GetDiscoveryDocEndpoint() const;
+  const QString& GetAuthEndpoint() const;
+  const QString& GetUserInfoEndpoint() const;
+  void SetAuthEndpoint(const QString&);
+  void SetUserInfoEndpoint(const QString&);
+
+  const QByteArray& GetAccessToken() const;
+  QString GetRedirectUri() const;
+
+  const QString BuildURL(int) const;
+
+  ReturnCodes HandleConsent(const QByteArray&);
+  void SetUser(const QByteArray&);
+  void LogOut();
 };
 } // namespace GS
+

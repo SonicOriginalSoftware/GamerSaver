@@ -9,7 +9,7 @@ project(
 )
 
 qt = import('qt5')
-qt_deps = dependency('qt5', main: true, modules: ['Core', 'Gui', 'Widgets', 'Network'])
+qt_deps = dependency('qt5', main: true, modules: ['Widgets', 'Network'])
 
 # Windows output shared libraries
 if build_machine.system() == 'windows'
@@ -25,5 +25,5 @@ endif
 # TODO Use if statements and a check of the meson command flag
 # to determine if the test targets should be built
 
-subdir('test')
+#subdir('test')
 subdir('src')

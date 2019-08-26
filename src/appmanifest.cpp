@@ -1,15 +1,12 @@
+#include "appmanifest.h"
 #include <QString>
 
 namespace GS
 {
-struct AppManifest {
-  static const QString OrgName;
-  static const QString AppName;
-  static const QString Version;
-};
+const QString AppManifest::OrgName{"Sonic Original Software"};
+const QString AppManifest::AppName{"GamerSaver"};
+const QString AppManifest::Version{"0.1.0"};
+const QString AppManifest::ClientID{"207822922610-jpk6ice7tsbo5ml6ig2q795ph1dnohle.apps.googleusercontent.com"};
+const QString AppManifest::RedirectURI{"http://localhost"};
 }
-
-const QString GS::AppManifest::OrgName{"Sonic Original Software"};
-const QString GS::AppManifest::AppName{"GamerSaver"};
-const QString GS::AppManifest::Version{"0.1.0"};
 
