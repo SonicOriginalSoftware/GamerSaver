@@ -9,17 +9,11 @@
 namespace GS {
 OAuthNetAccess::OAuthNetAccess(QNetworkAccessManager &qnam) : qnam{qnam} {}
 
-inline bool OAuthNetAccess::SSLSupported() {return QSslSocket::supportsSsl();}
+bool OAuthNetAccess::SSLSupported() {return QSslSocket::supportsSsl();}
 
-inline QString OAuthNetAccess::GetSSLBuildVersion()
-{
-  return QSslSocket::sslLibraryBuildVersionString();
-}
+QString OAuthNetAccess::GetSSLBuildVersion() {return QSslSocket::sslLibraryBuildVersionString();}
 
-inline bool OAuthNetAccess::NetworkConnected() const
-{
-  return qnam.networkAccessible() == QNetworkAccessManager::NetworkAccessibility::Accessible;
-}
+bool OAuthNetAccess::NetworkConnected() const {return qnam.networkAccessible() == QNetworkAccessManager::NetworkAccessibility::Accessible;}
 
 QByteArray OAuthNetAccess::get(const QNetworkRequest &request, QMessageBox &dialog) const
 {

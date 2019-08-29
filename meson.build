@@ -12,15 +12,15 @@ qt = import('qt5')
 qt_deps = dependency('qt5', main: true, modules: ['Widgets', 'Network'])
 
 # Windows output shared libraries
-if build_machine.system() == 'windows'
+#if build_machine.system() == 'windows'
   # OpenSSL required libraries
-  open_ssl_path = find_program('openssl').path().to_lower().strip('openssl.exe')
+  #open_ssl_path = find_program('openssl').path().to_lower().strip('openssl.exe')
   #configure_file(
     #input: open_ssl_path + 'libssl-1_1-x64.dll',
     #output: 'libssl-1_1-x64.dll',
     #copy: true,
   #)
-endif
+#endif
 
 # TODO Use if statements and a check of the meson command flag
 # to determine if the test targets should be built

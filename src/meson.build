@@ -16,14 +16,14 @@ moc_files = qt.preprocess(
 )
 
 sources += [
-  moc_files,
   'oauthloopbackserver.cpp',
   'oauthnetaccess.cpp',
-  'appmanifest.cpp',
-  'googleoauth.cpp',
   'oauth.cpp',
+  'googleoauth.cpp',
+  'appmanifest.cpp',
   'game.cpp',
   'main.cpp',
+  moc_files,
 ]
 
 GamerSaver = executable(
@@ -33,3 +33,4 @@ GamerSaver = executable(
   dependencies: [qt_deps],
   gui_app: true,
 )
+
