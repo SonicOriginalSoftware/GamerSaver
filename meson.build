@@ -22,8 +22,6 @@ qt_deps = dependency('qt5', main: true, modules: ['Widgets', 'Network'])
   #)
 #endif
 
-# TODO Use if statements and a check of the meson command flag
-# to determine if the test targets should be built
-
-#subdir('test')
+subdir('test')
 subdir('src')
+

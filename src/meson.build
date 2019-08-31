@@ -1,8 +1,6 @@
 moc_headers = [
-  'mainwindow.h',
 ]
 sources = [
-  'mainwindow.cpp',
 ]
 q_resources = [
   'resources.qrc',
@@ -23,6 +21,7 @@ sources += [
   'appmanifest.cpp',
   'game.cpp',
   'main.cpp',
+  'mainwindow.cpp',
   moc_files,
 ]
 

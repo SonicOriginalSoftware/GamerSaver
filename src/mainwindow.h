@@ -5,18 +5,19 @@
 #include <QPushButton>
 #include <QComboBox>
 #include <QListView>
-
-class QMessageBox;
+#include <QMessageBox>
+#include <QEventLoop>
+#include "appmanifest.h"
+#include "googleoauth.h"
+#include "oauthnetaccess.h"
 
 namespace GS
 {
-class OAuthNetAccess;
-class OAuthLoopbackServer;
-class GoogleOAuth;
-
 class MainWindow : public QMainWindow
 {
-  Q_OBJECT
+  static const QString loginBtnDefaultValue;
+  static const QString defaultProfilePictureFilePath;
+  const QString profilePictureFilePath;
 
   QHash<QString, QStringList> games;
 
@@ -28,24 +29,19 @@ class MainWindow : public QMainWindow
   QPushButton refreshBtn{};
   QComboBox gameSelector{};
   QListView saveList{};
+  QMessageBox dialog{};
+  QEventLoop loop{};
 
-  static const QString loginBtnDefaultValue;
-  static const QString defaultProfilePictureFilePath;
-
-  const QString profilePictureFilePath;
-  QMessageBox& dialog;
-  GoogleOAuth& googleOAuth;
-  OAuthNetAccess& oauthNetAccess;
-
-  void refresh();
+  GoogleOAuth googleOAuth{GS::AppManifest::ClientID, GS::AppManifest::RedirectURI};
+  OAuthNetAccess oauthNetAccess{loop};
 
 private slots:
-  void on_gameSelector_currentTextChanged(const QString &);
-  void on_refreshBtn_clicked(const bool &);
-  void on_loginBtn_clicked(const bool &);
+  void refresh(const bool& = false);
+  void login(const bool&);
+  void gameSelectionChanged(const QString&);
 
 public:
-  explicit MainWindow(GoogleOAuth&, OAuthNetAccess&, QMessageBox&);
+  explicit MainWindow();
 };
 } // namespace GS
 

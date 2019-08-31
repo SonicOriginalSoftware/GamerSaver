@@ -9,6 +9,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMessageBox>
+#include <QEventLoop>
 #include <QUrl>
 #include <QtWidgets/QStatusBar>
 
@@ -16,10 +17,15 @@ namespace GS {
 const QString MainWindow::loginBtnDefaultValue{"Login"};
 const QString MainWindow::defaultProfilePictureFilePath{":/res/login_placeholder.svg"};
 
-MainWindow::MainWindow(GoogleOAuth& oauth, OAuthNetAccess& net, QMessageBox& dialog)
-    : profilePictureFilePath{QCoreApplication::applicationDirPath().toUtf8() + "profilePic.jpg"},
-      dialog{dialog}, googleOAuth{oauth}, oauthNetAccess{net}
+MainWindow::MainWindow() : profilePictureFilePath{QCoreApplication::applicationDirPath().toUtf8() + "profilePic.jpg"}
 {
+  dialog.setIcon(QMessageBox::Icon::NoIcon);
+  dialog.setWindowTitle("GamerSaver - Waiting...");
+  dialog.setText("Press Cancel to abort the request");
+  dialog.setStandardButtons(QMessageBox::Cancel);
+
+  QObject::connect(&dialog, &QMessageBox::finished, &loop, &QEventLoop::exit);
+
   refresh();
   refreshBtn.setText("Refresh");
 
@@ -42,46 +48,54 @@ MainWindow::MainWindow(GoogleOAuth& oauth, OAuthNetAccess& net, QMessageBox& dia
   gridLayout.addWidget(&refreshBtn, 0, 4, 1, 1);
   gridLayout.addWidget(&saveList, 1, 0, 1, 5);
   gridLayout.addWidget(&loginBtn, 2, 0, 1, 5);
-  QMetaObject::connectSlotsByName(this);
+
+  QObject::connect(&refreshBtn, &QPushButton::clicked, this, &MainWindow::refresh);
+  QObject::connect(&loginBtn, &QPushButton::clicked, this, &MainWindow::login);
+  QObject::connect(&gameSelector, &QComboBox::currentTextChanged,
+      [=](const QString& gameName) { saveLM.setStringList(games[gameName]); });
 
   saveList.setModel(&saveLM);
   gameSelector.setModel(&gameLM);
 }
 
-void MainWindow::refresh() {
+void MainWindow::refresh(const bool&) {
   games = Game::BuildGames();
   gameLM.setStringList(games.keys());
+  loginBtn.setEnabled(false);
+
   if (gameLM.stringList().length() > 0) gameSelector.setCurrentText(gameLM.stringList().first());
 
-  if (OAuthNetAccess::SSLSupported() && oauthNetAccess.NetworkConnected()) {
-    statusBar()->showMessage("Requesting Google Discovery Doc from " + googleOAuth.GetDiscoveryDocEndpoint());
-
-    QJsonObject discoveryDocObject{
-        QJsonDocument::fromJson(
-            oauthNetAccess.Get(googleOAuth.GetDiscoveryDocEndpoint(), dialog))
-            .object()};
-
-    googleOAuth.SetAuthEndpoint(
-        discoveryDocObject[googleOAuth.GetAuthEndpointKeyName()]
-            .toString()
-            .toUtf8());
-    googleOAuth.SetUserInfoEndpoint(
-        discoveryDocObject[googleOAuth.GetUserInfoEndpointKeyName()]
-            .toString()
-            .toUtf8());
-  } else {
+  if (!OAuthNetAccess::SSLSupported()) {
     statusBar()->showMessage("No SSL library detected. Install " + oauthNetAccess.GetSSLBuildVersion());
-    loginBtn.setEnabled(false);
+    return;
   }
+  else if (!oauthNetAccess.NetworkConnected())
+  {
+    statusBar()->showMessage("No network connectivity detected. Connect to the internet and try again!");
+    return;
+  }
+
+  statusBar()->showMessage("Requesting Google Discovery Doc from " + googleOAuth.GetDiscoveryDocEndpoint());
+
+  // TODO Show the dialog
+  dialog.show();
+  QJsonObject discoveryDocObject{
+      QJsonDocument::fromJson(
+          oauthNetAccess.Get(googleOAuth.GetDiscoveryDocEndpoint()))
+          .object()};
+
+  googleOAuth.SetAuthEndpoint(
+      discoveryDocObject[googleOAuth.GetAuthEndpointKeyName()]
+          .toString()
+          .toUtf8());
+  googleOAuth.SetUserInfoEndpoint(
+      discoveryDocObject[googleOAuth.GetUserInfoEndpointKeyName()]
+          .toString()
+          .toUtf8());
+  loginBtn.setEnabled(true);
 }
 
-void MainWindow::on_gameSelector_currentTextChanged(const QString& gameName) {
-  saveLM.setStringList(games[gameName]);
-}
-
-void MainWindow::on_refreshBtn_clicked(const bool&) { refresh(); }
-
-void MainWindow::on_loginBtn_clicked(const bool& unchecked) {
+void MainWindow::login(const bool& unchecked) {
   googleOAuth.LogOut();
   if (!unchecked) {
     QFile::remove(profilePictureFilePath);
@@ -94,14 +108,13 @@ void MainWindow::on_loginBtn_clicked(const bool& unchecked) {
   loginBtn.setChecked(false);
   statusBar()->showMessage("Awaiting user consent...");
 
-  if (!QDesktopServices::openUrl(
-          QUrl{googleOAuth.BuildURL(OAuthLoopbackServer::GetListenPort())})) {
+  if (!QDesktopServices::openUrl(QUrl{googleOAuth.BuildURL(OAuthLoopbackServer::GetListenPort())})) {
     statusBar()->showMessage("Could not open URL in desktop program!");
     return;
   }
 
-  switch (googleOAuth.HandleConsent(OAuthLoopbackServer::PromptForConsent(
-      googleOAuth.GetRedirectUri(), dialog))) {
+  // TODO Show the dialog
+  switch (googleOAuth.HandleConsent(OAuthLoopbackServer::PromptForConsent(googleOAuth.GetRedirectUri(), loop))) {
     case ReturnCodes::CONSENT_ERR:
       statusBar()->showMessage("An error occurred in handling the consent");
       return;
@@ -115,13 +128,15 @@ void MainWindow::on_loginBtn_clicked(const bool& unchecked) {
       break;
   }
 
-  googleOAuth.SetUser(oauthNetAccess.Get(googleOAuth.GetUserInfoEndpoint(), dialog, googleOAuth.GetAccessToken()));
+  // TODO Show the dialog
+  googleOAuth.SetUser(oauthNetAccess.Get(googleOAuth.GetUserInfoEndpoint(), googleOAuth.GetAccessToken()));
 
   loginBtn.setChecked(true);
   loginBtn.setText(googleOAuth.GetProfileName());
   statusBar()->showMessage("Logged in");
 
-  QByteArray profilePicture{oauthNetAccess.Get(googleOAuth.GetProfilePictureURL(), dialog, googleOAuth.GetAccessToken())};
+  // TODO Show the dialog
+  QByteArray profilePicture{oauthNetAccess.Get(googleOAuth.GetProfilePictureURL(), googleOAuth.GetAccessToken())};
 
   QFile profilePictureFile{profilePictureFilePath};
   if (!profilePictureFile.open(QFile::WriteOnly)) {

@@ -1,21 +1,22 @@
 #pragma once
+#include <QtNetwork/QNetworkAccessManager>
 
 class QString;
 class QByteArray;
-class QMessageBox;
+class QEventLoop;
 class QNetworkRequest;
-class QNetworkAccessManager;
 
 namespace GS {
 class OAuthNetAccess {
-  QNetworkAccessManager &qnam;
-  QByteArray get(const QNetworkRequest&, QMessageBox&) const;
+  QNetworkAccessManager qnam;
+  QEventLoop& _loop;
+
+  QByteArray get(const QNetworkRequest&);
 
 public:
-  OAuthNetAccess(QNetworkAccessManager &qnam);
-
-  QByteArray Get(const QString&, QMessageBox&) const;
-  QByteArray Get(const QString&, QMessageBox&, const QByteArray&) const;
+  OAuthNetAccess(QEventLoop&);
+  QByteArray Get(const QString&);
+  QByteArray Get(const QString&, const QByteArray&);
   static bool SSLSupported();
   static QString GetSSLBuildVersion();
   bool NetworkConnected() const;
