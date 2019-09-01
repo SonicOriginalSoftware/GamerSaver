@@ -22,4 +22,3 @@ public:
   bool NetworkConnected() const;
 };
 } // namespace GS
-

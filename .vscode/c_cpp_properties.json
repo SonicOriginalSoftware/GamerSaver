@@ -4,8 +4,7 @@
             "name": "Windows",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:\\Qt\\5.13.0\\msvc2017_64\\include\\**",
-                "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.18362.0\\**"
+                "C:\\Qt\\5.13.0\\msvc2017_64\\include\\**"
             ],
             "defines": [],
             "intelliSenseMode": "msvc-x64",

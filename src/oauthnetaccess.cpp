@@ -40,4 +40,3 @@ QByteArray OAuthNetAccess::Get(const QString &requestUrl, const QByteArray &toke
   return get(oauthRequest);
 }
 } // namespace GS
-

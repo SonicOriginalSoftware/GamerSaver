@@ -69,4 +69,3 @@ public:
   void LogOut();
 };
 } // namespace GS
-

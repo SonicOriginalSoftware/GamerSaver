@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include <QApplication>
-#include <QScreen>
 #include <QFile>
 
 int main(int argc, char *argv[]) {
@@ -17,11 +16,7 @@ int main(int argc, char *argv[]) {
   GS::MainWindow w{};
 
   w.setFixedSize(1000, 500);
-  QScreen *screen{QGuiApplication::primaryScreen()}; // Should this be deleted!?
-  w.move((screen->geometry().width() / 2) - (w.width() / 2),
-         (screen->geometry().height() / 2) - (w.height() / 2));
   w.show();
 
   return a.exec();
 }
-

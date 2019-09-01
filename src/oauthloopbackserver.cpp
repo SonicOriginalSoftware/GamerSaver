@@ -45,4 +45,3 @@ QByteArray OAuthLoopbackServer::PromptForConsent(const QString& listenAddress, Q
   return response;
 }
 } // namespace GS
-

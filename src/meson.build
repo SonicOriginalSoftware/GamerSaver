@@ -2,14 +2,11 @@ moc_headers = [
 ]
 sources = [
 ]
-q_resources = [
-  'resources.qrc',
-]
 
 moc_files = qt.preprocess(
   moc_headers : moc_headers,
   moc_sources : sources,
-  qresources: q_resources,
+  qresources: 'resources.qrc',
   dependencies: qt_deps
 )
 
@@ -32,4 +29,3 @@ GamerSaver = executable(
   dependencies: [qt_deps],
   gui_app: true,
 )
-

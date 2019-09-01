@@ -4,8 +4,5 @@
 		"recommendations": [ "ms-vscode.cpptools", ]
   },
   "settings": {
-    "files.associations": {
-      "qnetworkaccessmanager": "cpp"
-    }
   }
 }

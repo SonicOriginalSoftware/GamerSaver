@@ -1,8 +1,4 @@
 #include "googleoauth.h"
-#include <QDesktopServices>
-#include <QJsonDocument>
-#include <QNetworkRequest>
-#include <QtNetwork/QTcpServer>
 
 namespace GS {
 const QString GoogleOAuth::OAuthEndpoints::discoveryDoc{ "https://accounts.google.com/.well-known/openid-configuration"};
@@ -16,4 +12,3 @@ const QString GoogleOAuth::userInfoEndpointKeyName{"userinfo_endpoint"};
 QString GoogleOAuth::GetAuthEndpointKeyName() const { return authorizationEndpointKeyName; }
 QString GoogleOAuth::GetUserInfoEndpointKeyName() const { return userInfoEndpointKeyName; }
 } // namespace GS
-

@@ -15,4 +15,3 @@ TestResult GSTest::RunTest() {
   return testResult;
 }
 } // namespace GSTest
-

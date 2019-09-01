@@ -1,4 +1,7 @@
 #pragma once
+#include "appmanifest.h"
+#include "googleoauth.h"
+#include "oauthnetaccess.h"
 #include <QMainWindow>
 #include <QStringListModel>
 #include <QGridLayout>
@@ -7,9 +10,6 @@
 #include <QListView>
 #include <QMessageBox>
 #include <QEventLoop>
-#include "appmanifest.h"
-#include "googleoauth.h"
-#include "oauthnetaccess.h"
 
 namespace GS
 {
@@ -35,7 +35,6 @@ class MainWindow : public QMainWindow
   GoogleOAuth googleOAuth{GS::AppManifest::ClientID, GS::AppManifest::RedirectURI};
   OAuthNetAccess oauthNetAccess{loop};
 
-private slots:
   void refresh(const bool& = false);
   void login(const bool&);
   void gameSelectionChanged(const QString&);
@@ -44,4 +43,3 @@ public:
   explicit MainWindow();
 };
 } // namespace GS
-

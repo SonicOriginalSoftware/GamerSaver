@@ -14,4 +14,3 @@ public:
   using OAuth2::OAuth2;
 };
 } // namespace GS
-

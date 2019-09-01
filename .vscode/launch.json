@@ -8,9 +8,9 @@
             "name": "Run GamerSaver - Debug",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\build\\debug\\windows\\src\\GamerSaver.exe",
+            "program": "${workspaceFolder}\\build\\src\\GamerSaver.exe",
             "preLaunchTask": "Build Debug (Ninja)",
-            "cwd": "${workspaceFolder}\\build\\debug\\windows\\src",
+            "cwd": "${workspaceFolder}\\build\\src",
             "logging": { "moduleLoad": false }
         },
     ]

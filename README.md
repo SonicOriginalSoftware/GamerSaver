@@ -7,25 +7,27 @@ Currently integrated with Google Drive as the cloud storage platform
 # Release
 ## V0.1.0
 * (pending)
+
 # Current Features
 * List local save games for supported games
 * Allow extensibility with custom games list
 * Theme
-* OAuth 2.0 Authorization and login for Google Drive support
-* Create support for loading a picture icon for the logged in user
 
 # Roadmap
 ## V0.1.0
-* Installation and packaging method
+* OAuth 2.0 Authorization and login for Google Drive support
+* Uses Google account picture icon for the logged in user
 
 ## V0.2.0
+* Installation and packaging method
+* Instructions on theming and extending with custom games support
 * Check access and permission to write to GamerSaver folder on user Drive account
 
 ## V0.3.0
 * Implement export and import save features
 
 ## Long-Term Features
-* Switch to more profesional cloud storage platform if enough warrant it
+* None so far!
 
 # Supported Games
 ## Bethesda games
@@ -49,17 +51,18 @@ Currently integrated with Google Drive as the cloud storage platform
 * QtWidgets
 * QtNetwork
 * QtCore
+* QtGui
 * meson
 * ninja
 
 # Building
 1. `git clone https://github.com/nathanblair/GamerSaver.git`
 2. `cd GamerSaver`
-3. `meson build/debug/{platform}`
-4. `ninja -C build/debug/{platform}`
+3. `meson build`
+4. `ninja -C build`
 
 # Testing
-1. **After running `meson build/debug/{platform}`** `ninja -C build/debug/{platform} test`
+1. **After running `meson build`** `meson test -C build`
 
 # Contributing
 1. Create an issue with your feature request/bug report
@@ -88,4 +91,3 @@ Thank you to the amazing [NexusMods](http://www.nexusmods.com/games/?) community
 Tannin42, thank you for the inspiration to build this application using Qt and C++. ModOrganizer remains my motivation for how to make software that works well, provides great features, extensive tools, and an intuitive user experience.
 
 And most of all, thank ***you*** for reading this, downloading GamerSaver, using GamerSaver, and experiencing what I hope has been a refreshingly simple and straightforward software experience.
-

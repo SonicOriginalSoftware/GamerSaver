@@ -24,4 +24,3 @@ public:
   TestResult RunTest();
 };
 } // namespace GSTest
-

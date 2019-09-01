@@ -78,4 +78,3 @@ void OAuth2::LogOut()
   tokens.accessToken = "";
 }
 } // namespace GS
-

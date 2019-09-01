@@ -9,7 +9,7 @@ project(
 )
 
 qt = import('qt5')
-qt_deps = dependency('qt5', main: true, modules: ['Widgets', 'Network'])
+qt_deps = dependency('qt5', main: true, modules: ['Core', 'Gui', 'Widgets', 'Network'])
 
 # Windows output shared libraries
 #if build_machine.system() == 'windows'
@@ -22,6 +22,5 @@ qt_deps = dependency('qt5', main: true, modules: ['Widgets', 'Network'])
   #)
 #endif
 
-subdir('test')
+#subdir('test')
 subdir('src')
-

@@ -8,10 +8,8 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QMessageBox>
-#include <QEventLoop>
 #include <QUrl>
-#include <QtWidgets/QStatusBar>
+#include <QStatusBar>
 
 namespace GS {
 const QString MainWindow::loginBtnDefaultValue{"Login"};
@@ -32,25 +30,20 @@ MainWindow::MainWindow() : profilePictureFilePath{QCoreApplication::applicationD
   loginBtn.setCheckable(true);
   loginBtn.setText(loginBtnDefaultValue);
   loginBtn.setIcon(QIcon(defaultProfilePictureFilePath));
+  loginBtn.setObjectName("loginBtn");
 
   setWindowTitle("GamerSaver");
-  setObjectName("MainWindow");
-  gridLayoutWidget.setObjectName("gridLayoutWidget");
-  gridLayout.setObjectName("gridLayout");
-  loginBtn.setObjectName("loginBtn");
-  refreshBtn.setObjectName("refreshBtn");
-  gameSelector.setObjectName("gameSelector");
-  saveList.setObjectName("saveList");
-
   setCentralWidget(&gridLayoutWidget);
+  gridLayoutWidget.setLayout(&gridLayout);
+
   gridLayout.setContentsMargins(4, 4, 4, 4);
   gridLayout.addWidget(&gameSelector, 0, 0, 1, 4);
   gridLayout.addWidget(&refreshBtn, 0, 4, 1, 1);
   gridLayout.addWidget(&saveList, 1, 0, 1, 5);
   gridLayout.addWidget(&loginBtn, 2, 0, 1, 5);
 
-  QObject::connect(&refreshBtn, &QPushButton::clicked, this, &MainWindow::refresh);
-  QObject::connect(&loginBtn, &QPushButton::clicked, this, &MainWindow::login);
+  // QObject::connect(&refreshBtn, &QPushButton::clicked, this, &MainWindow::refresh);
+  // QObject::connect(&loginBtn, &QPushButton::clicked, this, &MainWindow::login);
   QObject::connect(&gameSelector, &QComboBox::currentTextChanged,
       [=](const QString& gameName) { saveLM.setStringList(games[gameName]); });
 
@@ -77,7 +70,6 @@ void MainWindow::refresh(const bool&) {
 
   statusBar()->showMessage("Requesting Google Discovery Doc from " + googleOAuth.GetDiscoveryDocEndpoint());
 
-  // TODO Show the dialog
   dialog.show();
   QJsonObject discoveryDocObject{
       QJsonDocument::fromJson(
@@ -147,4 +139,3 @@ void MainWindow::login(const bool& unchecked) {
   if (profilePictureFile.write(profilePicture) != -1) loginBtn.setIcon(QIcon{profilePictureFilePath});
 }
 } // namespace GS
-

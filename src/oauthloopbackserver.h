@@ -16,5 +16,4 @@ public:
   static int GetListenPort();
   static QByteArray PromptForConsent(const QString&, QEventLoop&);
 };
-}
-
+} // namespace GS

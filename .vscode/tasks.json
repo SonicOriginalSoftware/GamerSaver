@@ -3,52 +3,52 @@
     // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
-        {
-            "label": "Generate Debug",
-            "type": "shell",
-            "command": "meson build\\debug\\windows",
-            "group": "build",
+      {
+        "label": "Generate Debug",
+        "type": "shell",
+        "command": "vcvars64 && meson build",
+        "group": "build"
+      },
+      {
+        "label": "Build Debug (Ninja)",
+        "type": "shell",
+        "command": "vcvars64 && ninja -C build",
+        "isBackground": false,
+        "group": {
+          "kind": "build",
+          "isDefault": true
         },
-        {
-            "label": "Build Debug (Ninja)",
-            "type": "shell",
-            "command": "vcvars64 && ninja -C build\\debug\\windows",
-            "isBackground": false,
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "silent",
-                "focus": false,
-                "panel": "dedicated",
-                "showReuseMessage": true,
-                "clear": true
-            },
-        },
-        {
-            "label": "Wipe debug",
-            "type": "shell",
-            "command": "meson --wipe build\\debug\\windows",
-            "problemMatcher": []
-        },
-        {
-            "label": "Run Tests",
-            "type": "shell",
-            "command": "vcvars64 && meson test -C build\\debug\\windows",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "silent",
-                "focus": false,
-                "panel": "dedicated",
-                "showReuseMessage": true,
-                "clear": true
-            },
+        "presentation": {
+          "echo": true,
+          "reveal": "silent",
+          "focus": false,
+          "panel": "dedicated",
+          "showReuseMessage": true,
+          "clear": true
         }
+      },
+      {
+        "label": "Wipe debug",
+        "type": "shell",
+        "command": "meson --wipe build",
+        "problemMatcher": []
+      },
+      {
+        "label": "Run Tests",
+        "type": "shell",
+        "command": "vcvars64 && meson test -C build",
+        "group": {
+          "kind": "test",
+          "isDefault": true
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "silent",
+          "focus": false,
+          "panel": "dedicated",
+          "showReuseMessage": true,
+          "clear": true
+        }
+      }
     ]
 }

@@ -22,4 +22,3 @@ int main(int argc, char *argv[]) {
   GSTest::TEST_PopulateGoogleEndPoints test{};
   return test.RunTest();
 }
-
