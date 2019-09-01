@@ -13,7 +13,7 @@ Currently integrated with Google Drive as the cloud storage platform
 * Theming
 * **(pending)**
 
-## See [GitHub Issues](https://github.com/SonicOriginalSoftware/GamerSaver) for a full roadmap
+## See [GitHub Issues](https://github.com/SonicOriginalSoftware/GamerSaver/issues) for a full roadmap
 
 # Supported Games
 ## Bethesda games
@@ -64,12 +64,12 @@ Currently integrated with Google Drive as the cloud storage platform
 7. ...
 8. Profit??
 
-# On permissions, authorization, and security
+# On Permissions, Authorization, and Security
 Everything in this application runs locally - there is no home to phone! The OAuth redirect URI (the thing that allows Google to grant consent to GamerSaver to access your Google Drive account) is directed to your local loopback address (i.e. not accessible to the internet) and the app has no access to your Google Credentials - only your Google profile name and picture (if you have them tied to your Google Account).
 
 The only power GamerSaver has is listed in the scope of the consent screen you will see upon first signing in. To elaborate on that effect, GamerSaver will not be allowed to completely erase all of your Google Drive data willy-nilly or other such disastrous operation. Its scope of access involves only access to a folder delegated to it by the API.
 
-    See the Consent screen of the app and [Google's Scopes](https://developers.google.com/identity/protocols/googlescopes) for details
+  See the Consent screen of the app and [Google's Scopes](https://developers.google.com/identity/protocols/googlescopes) for details
 
 In short, this application will not spy on you, collect your information, sell your information to third parties, or any combination of these nefarious schemes. This application is just wholesome usefulness. It should be a breath of fresh air. It is also fully open source; if you have any doubts about your security and privacy while using, feel free to check out and modify the source!
 
