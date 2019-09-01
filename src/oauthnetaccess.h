@@ -7,18 +7,22 @@ class QEventLoop;
 class QNetworkRequest;
 
 namespace GS {
+enum class NetAccessReturnCodes {
+  OK,
+  NETWORK_ERR
+};
+
 class OAuthNetAccess {
   QNetworkAccessManager qnam;
   QEventLoop& _loop;
 
-  QByteArray get(const QNetworkRequest&);
+  NetAccessReturnCodes get(const QNetworkRequest&, QByteArray&);
 
 public:
   OAuthNetAccess(QEventLoop&);
-  QByteArray Get(const QString&);
-  QByteArray Get(const QString&, const QByteArray&);
+  NetAccessReturnCodes Get(const QString&, QByteArray&);
+  NetAccessReturnCodes Get(const QString&, const QByteArray&, QByteArray&);
   static bool SSLSupported();
   static QString GetSSLBuildVersion();
-  bool NetworkConnected() const;
 };
 } // namespace GS

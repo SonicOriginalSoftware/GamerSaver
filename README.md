@@ -4,30 +4,16 @@ Cloud-based management of saves for games.
 Currently integrated with Google Drive as the cloud storage platform
 * Needs Google account to sign in and use app!
 
-# Release
-## V0.1.0
-* (pending)
-
 # Current Features
 * List local save games for supported games
-* Allow extensibility with custom games list
-* Theme
 
-# Roadmap
+# Release
 ## V0.1.0
-* OAuth 2.0 Authorization and login for Google Drive support
-* Uses Google account picture icon for the logged in user
+* Allow extensibility with custom games list
+* Theming
+* **(pending)**
 
-## V0.2.0
-* Installation and packaging method
-* Instructions on theming and extending with custom games support
-* Check access and permission to write to GamerSaver folder on user Drive account
-
-## V0.3.0
-* Implement export and import save features
-
-## Long-Term Features
-* None so far!
+## See [GitHub Issues](https://github.com/SonicOriginalSoftware/GamerSaver) for a full roadmap
 
 # Supported Games
 ## Bethesda games
@@ -47,13 +33,17 @@ Currently integrated with Google Drive as the cloud storage platform
 * Will likely use GitHub's Release system in future when app is more deployable
 * Or installation through a `ninja install` step
 
-# Compile-time Dependencies
-* QtWidgets
-* QtNetwork
-* QtCore
-* QtGui
+# Updating
+* Not implemented yet
+* Will use an in-app updating approach
+
+# Dev Dependencies
 * meson
 * ninja
+* QtCore
+* QtGui
+* QtWidgets
+* QtNetwork
 
 # Building
 1. `git clone https://github.com/nathanblair/GamerSaver.git`
@@ -62,7 +52,7 @@ Currently integrated with Google Drive as the cloud storage platform
 4. `ninja -C build`
 
 # Testing
-1. **After running `meson build`** `meson test -C build`
+1. **After running `meson build`:** `meson test -C build`
 
 # Contributing
 1. Create an issue with your feature request/bug report

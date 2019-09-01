@@ -2,22 +2,16 @@
 #include <QString>
 
 namespace GS {
-enum ReturnCodes {
+enum class OAuthReturnCodes {
   OK,
-  NETWORK_ERR,
-  CANCELLED,
-  UNHANDLED,
-  SERVER_ERR,
-  IO_ERR,
+  CONSENT_ERR,
   CONSENT_DENIED,
-  NON_UNIQUE_REQUEST,
-  CONSENT_ERR
+  NON_UNIQUE_REQUEST
 };
 
 class OAuth2 {
 protected:
   struct OAuthEndpoints {
-    static const QString discoveryDoc;
     QString auth;
     QString userInfo;
   };
@@ -32,7 +26,7 @@ protected:
   };
 
   struct OAuthParameters {
-    static const QString TokenResponseType;
+    static const QString ResponseType;
     static const QString Scope;
     static const QString Prompt;
     static const QString State;
@@ -51,21 +45,19 @@ private:
 public:
   explicit OAuth2(const QString&, const QString&);
 
-  const QString& GetProfileName() const;
-  const QString& GetProfilePictureURL() const;
-  const QString& GetDiscoveryDocEndpoint() const;
-  const QString& GetAuthEndpoint() const;
-  const QString& GetUserInfoEndpoint() const;
+  void LogOut();
+  QString GetProfileName() const;
+  QString GetProfilePictureURL() const;
+  QString GetAuthEndpoint() const;
+  QString GetUserInfoEndpoint() const;
+  QString GetRedirectUri() const;
+  QByteArray GetAccessToken() const;
+
   void SetAuthEndpoint(const QString&);
   void SetUserInfoEndpoint(const QString&);
-
-  const QByteArray& GetAccessToken() const;
-  QString GetRedirectUri() const;
-
-  const QString BuildURL(int) const;
-
-  ReturnCodes HandleConsent(const QByteArray&);
   void SetUser(const QByteArray&);
-  void LogOut();
+
+  QString BuildURL(int) const;
+  OAuthReturnCodes HandleConsent(const QByteArray&);
 };
 } // namespace GS

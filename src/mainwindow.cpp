@@ -15,8 +15,9 @@ namespace GS {
 const QString MainWindow::loginBtnDefaultValue{"Login"};
 const QString MainWindow::defaultProfilePictureFilePath{":/res/login_placeholder.svg"};
 
-MainWindow::MainWindow() : profilePictureFilePath{QCoreApplication::applicationDirPath().toUtf8() + "profilePic.jpg"}
-{
+MainWindow::MainWindow()
+  : profilePictureFilePath{QCoreApplication::applicationDirPath().toUtf8()
+    + "profilePic.jpg"} {
   dialog.setIcon(QMessageBox::Icon::NoIcon);
   dialog.setWindowTitle("GamerSaver - Waiting...");
   dialog.setText("Press Cancel to abort the request");
@@ -24,12 +25,12 @@ MainWindow::MainWindow() : profilePictureFilePath{QCoreApplication::applicationD
 
   QObject::connect(&dialog, &QMessageBox::finished, &loop, &QEventLoop::exit);
 
-  refresh();
   refreshBtn.setText("Refresh");
 
   loginBtn.setCheckable(true);
   loginBtn.setText(loginBtnDefaultValue);
   loginBtn.setIcon(QIcon(defaultProfilePictureFilePath));
+  loginBtn.setEnabled(false);
   loginBtn.setObjectName("loginBtn");
 
   setWindowTitle("GamerSaver");
@@ -42,39 +43,31 @@ MainWindow::MainWindow() : profilePictureFilePath{QCoreApplication::applicationD
   gridLayout.addWidget(&saveList, 1, 0, 1, 5);
   gridLayout.addWidget(&loginBtn, 2, 0, 1, 5);
 
-  // QObject::connect(&refreshBtn, &QPushButton::clicked, this, &MainWindow::refresh);
-  // QObject::connect(&loginBtn, &QPushButton::clicked, this, &MainWindow::login);
+  QObject::connect(&refreshBtn, &QPushButton::clicked, this, &MainWindow::refresh);
+  QObject::connect(&loginBtn, &QPushButton::clicked, this, &MainWindow::login);
   QObject::connect(&gameSelector, &QComboBox::currentTextChanged,
       [=](const QString& gameName) { saveLM.setStringList(games[gameName]); });
 
+  refresh();
   saveList.setModel(&saveLM);
   gameSelector.setModel(&gameLM);
-}
-
-void MainWindow::refresh(const bool&) {
-  games = Game::BuildGames();
-  gameLM.setStringList(games.keys());
-  loginBtn.setEnabled(false);
-
-  if (gameLM.stringList().length() > 0) gameSelector.setCurrentText(gameLM.stringList().first());
 
   if (!OAuthNetAccess::SSLSupported()) {
     statusBar()->showMessage("No SSL library detected. Install " + oauthNetAccess.GetSSLBuildVersion());
     return;
   }
-  else if (!oauthNetAccess.NetworkConnected())
-  {
-    statusBar()->showMessage("No network connectivity detected. Connect to the internet and try again!");
-    return;
-  }
 
   statusBar()->showMessage("Requesting Google Discovery Doc from " + googleOAuth.GetDiscoveryDocEndpoint());
-
+  QByteArray discoveryDoc{""};
   dialog.show();
-  QJsonObject discoveryDocObject{
-      QJsonDocument::fromJson(
-          oauthNetAccess.Get(googleOAuth.GetDiscoveryDocEndpoint()))
-          .object()};
+  oauthNetAccess.Get(googleOAuth.GetDiscoveryDocEndpoint(), discoveryDoc);
+  dialog.hide();
+  QJsonObject discoveryDocObject{QJsonDocument::fromJson(discoveryDoc).object()};
+
+  if (discoveryDocObject.isEmpty()) {
+    statusBar()->showMessage("Endpoints could not be retrieved. Try again!");
+    return;
+  }
 
   googleOAuth.SetAuthEndpoint(
       discoveryDocObject[googleOAuth.GetAuthEndpointKeyName()]
@@ -84,7 +77,16 @@ void MainWindow::refresh(const bool&) {
       discoveryDocObject[googleOAuth.GetUserInfoEndpointKeyName()]
           .toString()
           .toUtf8());
+
+  statusBar()->showMessage("Endpoints retrieved. Log in when ready!");
   loginBtn.setEnabled(true);
+}
+
+void MainWindow::refresh(const bool&) {
+  games = Game::BuildGames();
+  gameLM.setStringList(games.keys());
+
+  if (gameLM.stringList().length() > 0) gameSelector.setCurrentText(gameLM.stringList().first());
 }
 
 void MainWindow::login(const bool& unchecked) {
@@ -105,30 +107,55 @@ void MainWindow::login(const bool& unchecked) {
     return;
   }
 
-  // TODO Show the dialog
-  switch (googleOAuth.HandleConsent(OAuthLoopbackServer::PromptForConsent(googleOAuth.GetRedirectUri(), loop))) {
-    case ReturnCodes::CONSENT_ERR:
-      statusBar()->showMessage("An error occurred in handling the consent");
-      return;
-    case ReturnCodes::CONSENT_DENIED:
-      statusBar()->showMessage("Consent was denied");
-      return;
-    case ReturnCodes::NON_UNIQUE_REQUEST:
-      statusBar()->showMessage("Request was not unique!");
-      return;
+  QByteArray consentResponse{""};
+  dialog.show();
+  switch (OAuthLoopbackServer::ListenForConsent(googleOAuth.GetRedirectUri(), loop, consentResponse)) {
+    case ServerReturnCodes::SERVER_ERR:
+      statusBar()->showMessage("An error occurred in the server!");
+    case ServerReturnCodes::CANCELLED:
+      statusBar()->showMessage("Request was cancelled!");
     default:
-      break;
+      dialog.hide();
   }
 
-  // TODO Show the dialog
-  googleOAuth.SetUser(oauthNetAccess.Get(googleOAuth.GetUserInfoEndpoint(), googleOAuth.GetAccessToken()));
+  switch (googleOAuth.HandleConsent(consentResponse)) {
+    case OAuthReturnCodes::CONSENT_ERR:
+      statusBar()->showMessage("An error occurred in handling the consent!");
+      return;
+    case OAuthReturnCodes::CONSENT_DENIED:
+      statusBar()->showMessage("Consent was denied!");
+      return;
+    case OAuthReturnCodes::NON_UNIQUE_REQUEST:
+      statusBar()->showMessage("Request was not unique!");
+      return;
+  }
 
+  QByteArray userInfo{""};
+  dialog.show();
+  oauthNetAccess.Get(googleOAuth.GetUserInfoEndpoint(), googleOAuth.GetAccessToken(), userInfo);
+  dialog.hide();
+  if (userInfo == "") {
+    statusBar()->showMessage("User info invalid!");
+    return;
+  }
+
+  googleOAuth.SetUser(userInfo);
   loginBtn.setChecked(true);
   loginBtn.setText(googleOAuth.GetProfileName());
   statusBar()->showMessage("Logged in");
 
-  // TODO Show the dialog
-  QByteArray profilePicture{oauthNetAccess.Get(googleOAuth.GetProfilePictureURL(), googleOAuth.GetAccessToken())};
+  QString profilePictureUrl{googleOAuth.GetProfilePictureURL()};
+  if (profilePictureUrl == "") return;
+
+  QByteArray profilePicture{""};
+  dialog.show();
+  oauthNetAccess.Get(profilePictureUrl, googleOAuth.GetAccessToken(), profilePicture);
+  dialog.hide();
+  if (profilePicture == "") {
+    loginBtn.setIcon(QIcon{defaultProfilePictureFilePath});
+    statusBar()->showMessage("Profile picture invalid!");
+    return;
+  }
 
   QFile profilePictureFile{profilePictureFilePath};
   if (!profilePictureFile.open(QFile::WriteOnly)) {
