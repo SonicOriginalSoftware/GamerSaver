@@ -23,8 +23,6 @@ MainWindow::MainWindow()
   dialog.setText("Press Cancel to abort the request");
   dialog.setStandardButtons(QMessageBox::Cancel);
 
-  QObject::connect(&dialog, &QMessageBox::finished, &loop, &QEventLoop::exit);
-
   refreshBtn.setText("Refresh");
 
   loginBtn.setCheckable(true);
@@ -43,6 +41,7 @@ MainWindow::MainWindow()
   gridLayout.addWidget(&saveList, 1, 0, 1, 5);
   gridLayout.addWidget(&loginBtn, 2, 0, 1, 5);
 
+  QObject::connect(&dialog, &QMessageBox::finished, &loop, &QEventLoop::exit);
   QObject::connect(&refreshBtn, &QPushButton::clicked, this, &MainWindow::refresh);
   QObject::connect(&loginBtn, &QPushButton::clicked, this, &MainWindow::login);
   QObject::connect(&gameSelector, &QComboBox::currentTextChanged,
@@ -57,10 +56,10 @@ MainWindow::MainWindow()
     return;
   }
 
-  statusBar()->showMessage("Requesting Google Discovery Doc from " + googleOAuth.GetDiscoveryDocEndpoint());
+  statusBar()->showMessage("Requesting Google Discovery Doc from " + GoogleOAuth::GetDiscoveryDocEndpoint());
   QByteArray discoveryDoc{""};
   dialog.show();
-  oauthNetAccess.Get(googleOAuth.GetDiscoveryDocEndpoint(), discoveryDoc);
+  oauthNetAccess.Get(GoogleOAuth::GetDiscoveryDocEndpoint(), discoveryDoc);
   dialog.hide();
   QJsonObject discoveryDocObject{QJsonDocument::fromJson(discoveryDoc).object()};
 
@@ -70,11 +69,11 @@ MainWindow::MainWindow()
   }
 
   googleOAuth.SetAuthEndpoint(
-      discoveryDocObject[googleOAuth.GetAuthEndpointKeyName()]
+      discoveryDocObject[GoogleOAuth::GetAuthEndpointKeyName()]
           .toString()
           .toUtf8());
   googleOAuth.SetUserInfoEndpoint(
-      discoveryDocObject[googleOAuth.GetUserInfoEndpointKeyName()]
+      discoveryDocObject[GoogleOAuth::GetUserInfoEndpointKeyName()]
           .toString()
           .toUtf8());
 
@@ -114,9 +113,11 @@ void MainWindow::login(const bool& unchecked) {
       statusBar()->showMessage("An error occurred in the server!");
     case ServerReturnCodes::CANCELLED:
       statusBar()->showMessage("Request was cancelled!");
-    default:
-      dialog.hide();
+    case ServerReturnCodes::OK:
+      break;
   }
+  dialog.hide();
+  if (consentResponse == "") return;
 
   switch (googleOAuth.HandleConsent(consentResponse)) {
     case OAuthReturnCodes::CONSENT_ERR:
@@ -128,6 +129,8 @@ void MainWindow::login(const bool& unchecked) {
     case OAuthReturnCodes::NON_UNIQUE_REQUEST:
       statusBar()->showMessage("Request was not unique!");
       return;
+    case OAuthReturnCodes::OK:
+      break;
   }
 
   QByteArray userInfo{""};

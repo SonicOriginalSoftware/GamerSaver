@@ -16,7 +16,7 @@ class OAuthLoopbackServer
 {
   static const int listenPort{8080};
   static const QByteArray okResponse;
-  static const QByteArray responseHTML;
+  static const QByteArray getConsentHTML;
 
 public:
   static int GetListenPort();

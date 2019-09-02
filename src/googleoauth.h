@@ -10,9 +10,11 @@ class GoogleOAuth : public OAuth2
   static const QString userInfoEndpointKeyName;
 
 public:
+  explicit GoogleOAuth(const QString&, const QString&);
   static QString GetDiscoveryDocEndpoint();
-  QString GetAuthEndpointKeyName() const;
-  QString GetUserInfoEndpointKeyName() const;
-  using OAuth2::OAuth2;
+  static QString GetAuthEndpointKeyName();
+  static QString GetUserInfoEndpointKeyName();
+
+  QString BuildURL(int) const;
 };
 } // namespace GS

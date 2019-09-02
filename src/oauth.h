@@ -11,10 +11,19 @@ enum class OAuthReturnCodes {
 
 class OAuth2 {
 protected:
+  struct OAuthParameters {
+    static const QString ResponseType;
+    static const QString Scope;
+    static const QString Prompt;
+    static const QString State;
+    const QString clientId;
+    const QString redirectUri;
+  } parameters;
+
   struct OAuthEndpoints {
     QString auth;
     QString userInfo;
-  };
+  } endpoints;
 
   struct UserProfile {
     QString pictureURL;
@@ -25,16 +34,7 @@ protected:
     QByteArray accessToken;
   };
 
-  struct OAuthParameters {
-    static const QString ResponseType;
-    static const QString Scope;
-    static const QString Prompt;
-    static const QString State;
-  };
-
-  const QString client_id;
-  const QString redirect_uri;
-  OAuthEndpoints endpoints;
+  explicit OAuth2();
 
 private:
   const QString profilePictureFileName;
@@ -43,8 +43,6 @@ private:
   Tokens tokens;
 
 public:
-  explicit OAuth2(const QString&, const QString&);
-
   void LogOut();
   QString GetProfileName() const;
   QString GetProfilePictureURL() const;
@@ -57,7 +55,6 @@ public:
   void SetUserInfoEndpoint(const QString&);
   void SetUser(const QByteArray&);
 
-  QString BuildURL(int) const;
   OAuthReturnCodes HandleConsent(const QByteArray&);
 };
 } // namespace GS
