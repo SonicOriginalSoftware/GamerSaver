@@ -2,8 +2,7 @@
 
 class QString;
 
-namespace GS
-{
+namespace GS {
 struct AppManifest {
   static const QString OrgName;
   static const QString AppName;
@@ -11,5 +10,4 @@ struct AppManifest {
   static const QString ClientID;
   static const QString RedirectURI;
 };
-}
-
+} // namespace GS

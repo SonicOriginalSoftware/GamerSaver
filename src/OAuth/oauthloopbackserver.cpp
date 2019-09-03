@@ -3,8 +3,10 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QEventLoop>
+#include <QJsonDocument>
+#include <QJsonObject>
 
-namespace GS {
+namespace OAuth {
 const QByteArray OAuthLoopbackServer::okResponse{
     "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: text/html;"
     "charset=UTF-8\r\n\r\n"};
@@ -22,15 +24,20 @@ const QByteArray OAuthLoopbackServer::getConsentHTML{
     "</script></body></html>"};
 
 int OAuthLoopbackServer::GetListenPort() { return listenPort; }
+ConsentResponse::ConsentResponse(const QString& accessToken,
+                                 const ConsentReturnCodes& error)
+  : accessToken{accessToken}, error{error} {}
 
-ServerReturnCodes OAuthLoopbackServer::ListenForConsent(const QString& listenAddress, QEventLoop& loop, QByteArray& response)
-{
+ConsentResponse OAuthLoopbackServer::ListenForConsent(const QString& listenAddress, QEventLoop& loop, const QString& state) {
+  QString accessToken{""};
+  ConsentReturnCodes returnCode{ConsentReturnCodes::SERVER_ERR};
+
   QTcpServer server{};
-  ServerReturnCodes returnCode{ServerReturnCodes::SERVER_ERR};
   QObject::connect(&server, &QTcpServer::newConnection, &loop, &QEventLoop::quit);
   if (!server.listen(QHostAddress(listenAddress), listenPort))
-    return ServerReturnCodes::SERVER_ERR;
+    return OAuth::ConsentResponse{accessToken, returnCode};
 
+  QByteArray response{""};
   int loopResult{loop.exec()};
   QTcpSocket *initialConnection{server.nextPendingConnection()};
   if (initialConnection != nullptr && loopResult == 0) {
@@ -51,12 +58,28 @@ ServerReturnCodes OAuthLoopbackServer::ListenForConsent(const QString& listenAdd
       consentConnection->disconnectFromHost();
       delete consentConnection;
 
-      returnCode = ServerReturnCodes::OK;
+      QString stringResponse{response};
+      int firstIndex{stringResponse.lastIndexOf("{")};
+      QJsonObject responseAsJson = QJsonDocument::fromJson(
+        QStringRef{&stringResponse, firstIndex, response.length() - firstIndex}.toUtf8()
+      ).object();
+
+      accessToken = responseAsJson["access_token"].toString();
+      if (!responseAsJson.contains("error")) {
+        returnCode = ConsentReturnCodes::OK;
+      } else {
+        returnCode = ConsentReturnCodes::CONSENT_ERR;
+        if (responseAsJson["error"].toString() == "access_denied")
+          returnCode = ConsentReturnCodes::CONSENT_DENIED;
+      }
+      if (responseAsJson["state"].toString() != state) {
+          returnCode = ConsentReturnCodes::NON_UNIQUE_REQUEST;
+      }
     }
   }
-  else if (loopResult != 0) { returnCode = ServerReturnCodes::CANCELLED; }
+  else if (loopResult != 0) { returnCode = ConsentReturnCodes::CANCELLED; }
 
   server.close();
-  return returnCode;
+  return OAuth::ConsentResponse{accessToken, returnCode};
 }
-} // namespace GS
+} // namespace OAuth
