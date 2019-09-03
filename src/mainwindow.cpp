@@ -18,9 +18,11 @@ MainWindow::MainWindow() {
   // FIXME Create a method to add the loginBtn of the GSOAuth to the gridLayout
   // gridLayout.addWidget(&loginBtn, 2, 0, 1, 5);
 
-  QObject::connect(&refreshBtn, &QPushButton::clicked, this, &MainWindow::refresh);
-  QObject::connect(&gameSelector, &QComboBox::currentTextChanged,
-    [=](const QString& gameName) { saveLM.setStringList(games[gameName]); });
+  QObject::connect(&refreshBtn, &QPushButton::clicked, this,
+                   &MainWindow::refresh);
+  QObject::connect(
+      &gameSelector, &QComboBox::currentTextChanged,
+      [=](const QString &gameName) { saveLM.setStringList(games[gameName]); });
 
   refresh();
   saveList.setModel(&saveLM);
@@ -29,10 +31,11 @@ MainWindow::MainWindow() {
   // gsOAuth.Logout();
 }
 
-void MainWindow::refresh(const bool&) {
+void MainWindow::refresh(const bool &) {
   games = Game::BuildGames();
   gameLM.setStringList(games.keys());
 
-  if (gameLM.stringList().length() > 0) gameSelector.setCurrentText(gameLM.stringList().first());
+  if (gameLM.stringList().length() > 0)
+    gameSelector.setCurrentText(gameLM.stringList().first());
 }
 } // namespace GS

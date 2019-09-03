@@ -1,5 +1,5 @@
-#include "mainwindow.h"
 #include "appmanifest.h"
+#include "mainwindow.h"
 #include <QApplication>
 
 int main(int argc, char *argv[]) {
@@ -8,10 +8,8 @@ int main(int argc, char *argv[]) {
   QCoreApplication::setApplicationVersion(GS::AppManifest::Version);
 
   QApplication a(argc, argv);
-  a.setStyleSheet(
-    "*{font-size:18px;}"
-    "#loginBtn{qproperty-iconSize:48px;font-size:24px;}"
-  );
+  a.setStyleSheet("*{font-size:18px;}"
+                  "#loginBtn{qproperty-iconSize:48px;font-size:24px;}");
 
   // QFile styleFile{QCoreApplication::applicationDirPath() + "/custom.css"};
   // if (styleFile.open(QFile::ReadOnly)) a.setStyleSheet(styleFile.readAll());

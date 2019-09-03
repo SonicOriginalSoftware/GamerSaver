@@ -11,7 +11,7 @@ protected:
     static const QString State;
     static const QString ClientId;
     static const QString RedirectUri;
-  } const parameters;
+  };
 
   struct OAuthEndpoints {
     QString auth;

@@ -10,9 +10,14 @@
         "group": "build"
       },
       {
+        "windows": {
+          "command": "vcvars64 && ninja -C build",
+        },
+        "linux": {
+          "command": "ninja -C build"
+        },
         "label": "Build Debug (Ninja)",
         "type": "shell",
-        "command": "vcvars64 && ninja -C build",
         "isBackground": false,
         "group": {
           "kind": "build",
@@ -36,7 +41,12 @@
       {
         "label": "Run Tests",
         "type": "shell",
-        "command": "vcvars64 && meson test -C build",
+        "windows": {
+          "command": "vcvars64 && meson test -C build",
+        },
+        "linux": {
+          "command": "meson test -C build"
+        },
         "group": {
           "kind": "test",
           "isDefault": true

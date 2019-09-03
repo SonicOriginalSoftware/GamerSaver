@@ -7,10 +7,8 @@
 
 class QStatusBar;
 
-namespace GS
-{
-class GSOAuth : OAuth::GoogleOAuth
-{
+namespace GS {
+class GSOAuth : OAuth::GoogleOAuth {
   static const QString loginBtnDefaultValue;
   static const QString defaultProfilePictureFilePath;
   const QString profilePictureFilePath;
@@ -18,11 +16,11 @@ class GSOAuth : OAuth::GoogleOAuth
   QEventLoop loop{};
   QMessageBox dialog{};
   QPushButton loginBtn{};
-  QStatusBar* statusBar;
+  QStatusBar *statusBar;
   OAuthNetAccess oauthNetAccess{loop};
 
 public:
-  explicit GSOAuth(QStatusBar*);
+  explicit GSOAuth(QStatusBar *);
   void Login();
   void Logout();
 };

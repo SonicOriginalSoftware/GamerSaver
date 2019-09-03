@@ -1,14 +1,13 @@
 #pragma once
 #include "gsoauth.h"
-#include <QMainWindow>
-#include <QStringListModel>
-#include <QGridLayout>
-#include <QPushButton>
 #include <QComboBox>
+#include <QGridLayout>
 #include <QListView>
+#include <QMainWindow>
+#include <QPushButton>
+#include <QStringListModel>
 
-namespace GS
-{
+namespace GS {
 class MainWindow : public QMainWindow {
   QHash<QString, QStringList> games;
 
@@ -22,7 +21,7 @@ class MainWindow : public QMainWindow {
 
   // GSOAuth gsOAuth{this->statusBar()};
 
-  void refresh(const bool& = false);
+  void refresh(const bool & = false);
 
 public:
   explicit MainWindow();

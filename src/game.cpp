@@ -3,10 +3,9 @@
 #include <QDir>
 #include <QSettings>
 
-void GS::Game::updateGames(QHash<QString, QStringList> &games, const QSettings &ini)
-{
-  for (const auto &eachGame : ini.childGroups())
-  {
+void GS::Game::updateGames(QHash<QString, QStringList> &games,
+                           const QSettings &ini) {
+  for (const auto &eachGame : ini.childGroups()) {
     QString gamePath{ini.value(eachGame + "/path").toString()};
     QDir gameDir{QDir::homePath() + QDir::separator() + gamePath};
     if (!gameDir.exists())
@@ -20,10 +19,10 @@ void GS::Game::updateGames(QHash<QString, QStringList> &games, const QSettings &
   }
 }
 
-const QHash<QString, QStringList> GS::Game::BuildGames()
-{
+const QHash<QString, QStringList> GS::Game::BuildGames() {
   QSettings defaultINI{":/res/DefaultGameList.ini", QSettings::IniFormat};
-  QSettings customINI{QCoreApplication::applicationDirPath() + "/GameList.ini", QSettings::IniFormat};
+  QSettings customINI{QCoreApplication::applicationDirPath() + "/GameList.ini",
+                      QSettings::IniFormat};
 
   QHash<QString, QStringList> games{};
   updateGames(games, defaultINI);
