@@ -6,8 +6,8 @@ class GoogleOAuth : protected OAuth::OAuth2
 {
 protected:
   static const QString DiscoveryDocUrl;
-  static const QString AuthorizationEndpointKeyName;
-  static const QString UserInfoEndpointKeyName;
+  static const QString AuthEndpointKey;
+  static const QString UserInfoEndpointKey;
 
   QString BuildURL(int) const;
 };

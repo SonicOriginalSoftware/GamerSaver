@@ -4,23 +4,26 @@
 #include <QEventLoop>
 #include <QMessageBox>
 #include <QPushButton>
-
-class QStatusBar;
+#include <QStatusBar>
 
 namespace GS {
+class MainWindow;
+
 class GSOAuth : OAuth::GoogleOAuth {
   static const QString loginBtnDefaultValue;
-  static const QString defaultProfilePictureFilePath;
-  const QString profilePictureFilePath;
+  static const QString defaultProfilePicPath;
+  const QString profilePicPath;
 
   QEventLoop loop{};
   QMessageBox dialog{};
-  QPushButton loginBtn{};
-  QStatusBar *statusBar;
+  QStatusBar statusBar{};
   OAuthNetAccess oauthNetAccess{loop};
 
 public:
-  explicit GSOAuth(QStatusBar *);
+  QPushButton loginBtn{};
+
+  // explicit GSOAuth(MainWindow&, std::function<void(QPushButton*)>);
+  explicit GSOAuth(MainWindow&);
   void Login();
   void Logout();
 };

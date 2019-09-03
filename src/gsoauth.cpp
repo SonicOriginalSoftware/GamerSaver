@@ -1,34 +1,34 @@
 #include "gsoauth.h"
+#include "mainwindow.h"
 #include "OAuth/oauthloopbackserver.h"
-#include "appmanifest.h"
 #include <QCoreApplication>
 #include <QDesktopServices>
 #include <QFile>
 #include <QIcon>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QMessageBox>
-#include <QStatusBar>
 #include <QString>
 #include <QUrl>
 
 namespace OAuth {
-const QString OAuth2::OAuthParameters::ClientId{GS::AppManifest::ClientID};
-const QString OAuth2::OAuthParameters::RedirectUri{
-    GS::AppManifest::RedirectURI};
+const QString OAuth2::OAuthParameters::RedirectUri{"http://localhost"};
+const QString OAuth2::OAuthParameters::ClientId{
+  "207822922610-jpk6ice7tsbo5ml6ig2q795ph1dnohle.apps.googleusercontent.com"};
 const QString OAuth2::OAuthParameters::Scope{QUrl::toPercentEncoding(
     "https://www.googleapis.com/auth/drive.file profile")};
 } // namespace OAuth
 
 namespace GS {
 const QString GSOAuth::loginBtnDefaultValue{"Login"};
-const QString GSOAuth::defaultProfilePictureFilePath{
-    ":/res/login_placeholder.svg"};
+const QString GSOAuth::defaultProfilePicPath{":/res/login_placeholder.svg"};
 
-GSOAuth::GSOAuth(QStatusBar *statusbar)
-    : profilePictureFilePath{QCoreApplication::applicationDirPath().toUtf8() +
-                             "profilePic.jpg"},
-      statusBar{statusbar} {
+GSOAuth::GSOAuth(MainWindow& window)
+// GSOAuth::GSOAuth(MainWindow& window, std::function<void(QPushButton*)>addLoginBtn)
+    : profilePicPath{QCoreApplication::applicationDirPath().toUtf8() + "profilePic.jpg"} {
+  // addLoginBtn(&loginBtn);
+  statusBar.setSizeGripEnabled(false);
+  window.setStatusBar(&statusBar);
+
   dialog.setIcon(QMessageBox::Icon::NoIcon);
   dialog.setWindowTitle("GamerSaver - Waiting...");
   dialog.setText("Press Cancel to abort the request");
@@ -37,56 +37,54 @@ GSOAuth::GSOAuth(QStatusBar *statusbar)
   loginBtn.setCheckable(true);
   loginBtn.setEnabled(false);
   loginBtn.setObjectName("loginBtn");
+  Logout();
 
   QObject::connect(&dialog, &QMessageBox::finished, &loop, &QEventLoop::exit);
   QObject::connect(
       &loginBtn, &QPushButton::clicked,
-      [=](const bool &unchecked) { unchecked ? Logout() : Login(); });
+      [=](const bool &unchecked) { !unchecked ? Logout() : Login(); });
 
   if (!OAuthNetAccess::SSLSupported()) {
-    statusBar->showMessage("No SSL library detected. Install " +
-                           oauthNetAccess.GetSSLBuildVersion());
+    statusBar.showMessage("No SSL library detected. Install " +
+                          oauthNetAccess.GetSSLBuildVersion());
     return;
   }
 
-  statusBar->showMessage("Requesting Google Discovery Doc from " +
+  statusBar.showMessage("Requesting Google Discovery Doc from " +
                          GoogleOAuth::DiscoveryDocUrl);
   dialog.show();
-  QByteArray discoveryDoc{oauthNetAccess.Get(GoogleOAuth::DiscoveryDocUrl)};
+  QByteArray doc{oauthNetAccess.Get(GoogleOAuth::DiscoveryDocUrl)};
   dialog.hide();
 
-  if (discoveryDoc == "") {
-    statusBar->showMessage("Endpoints could not be retrieved. Try again!");
+  if (doc == "") {
+    statusBar.showMessage("Endpoints could not be retrieved. Try again!");
     return;
   }
 
-  QJsonObject discoveryDocObject{
-      QJsonDocument::fromJson(discoveryDoc).object()};
+  QJsonObject docObj{QJsonDocument::fromJson(doc).object()};
 
-  endpoints.auth =
-      discoveryDocObject[GoogleOAuth::AuthorizationEndpointKeyName].toString();
-  endpoints.userInfo =
-      discoveryDocObject[GoogleOAuth::UserInfoEndpointKeyName].toString();
+  endpoints.auth = docObj[GoogleOAuth::AuthEndpointKey].toString();
+  endpoints.userInfo = docObj[GoogleOAuth::UserInfoEndpointKey].toString();
 
-  statusBar->showMessage("Endpoints retrieved. Log in when ready!");
+  statusBar.showMessage("Endpoints retrieved. Log in when ready!");
   loginBtn.setEnabled(true);
 }
 
 void GSOAuth::Logout() {
   ClearUser();
-  QFile::remove(profilePictureFilePath);
+  QFile::remove(profilePicPath);
   loginBtn.setText(loginBtnDefaultValue);
-  loginBtn.setIcon(QIcon{defaultProfilePictureFilePath});
+  loginBtn.setIcon(QIcon{defaultProfilePicPath});
   loginBtn.setChecked(false);
-  statusBar->showMessage("Logged out");
+  statusBar.showMessage("Logged out");
   return;
 }
 
 void GSOAuth::Login() {
-  statusBar->showMessage("Awaiting user consent...");
+  statusBar.showMessage("Awaiting user consent...");
   if (!QDesktopServices::openUrl(
           QUrl{BuildURL(OAuth::OAuthLoopbackServer::GetListenPort())})) {
-    statusBar->showMessage("Could not open URL in desktop program!");
+    statusBar.showMessage("Could not open URL in desktop program!");
     return;
   }
 
@@ -100,42 +98,38 @@ void GSOAuth::Login() {
   case OAuth::ConsentReturnCodes::OK:
     break;
   case OAuth::ConsentReturnCodes::CANCELLED:
-    statusBar->showMessage("Request was cancelled!");
+    statusBar.showMessage("Request was cancelled!");
     return;
   case OAuth::ConsentReturnCodes::SERVER_ERR:
-    statusBar->showMessage("An error occurred in the server!");
+    statusBar.showMessage("An error occurred in the server!");
     return;
   case OAuth::ConsentReturnCodes::CONSENT_ERR:
-    statusBar->showMessage("An error occurred in handling the consent!");
+    statusBar.showMessage("An error occurred in handling the consent!");
     return;
   case OAuth::ConsentReturnCodes::CONSENT_DENIED:
-    statusBar->showMessage("Consent was denied!");
+    statusBar.showMessage("Consent was denied!");
     return;
   case OAuth::ConsentReturnCodes::NON_UNIQUE_REQUEST:
-    statusBar->showMessage("Request was not unique!");
+    statusBar.showMessage("Request was not unique!");
     return;
   }
 
   dialog.show();
-  QByteArray userInfo{
-      oauthNetAccess.Get(endpoints.userInfo, tokens.accessToken)};
+  QByteArray user{oauthNetAccess.Get(endpoints.userInfo, tokens.accessToken)};
   dialog.hide();
-  if (userInfo == "") {
-    statusBar->showMessage("User info invalid!");
+  if (user == "") {
+    statusBar.showMessage("User info invalid!");
     return;
   }
 
-  QJsonObject userInfoObject{QJsonDocument::fromJson(userInfo).object()};
-  if (userInfoObject.isEmpty())
-    return;
-
+  QJsonObject userInfoObject{QJsonDocument::fromJson(user).object()};
   profile.name = userInfoObject["name"].toString().toUtf8();
   profile.pictureURL = userInfoObject.contains("picture")
                            ? userInfoObject["picture"].toString().toUtf8()
                            : QString{""};
   loginBtn.setChecked(true);
   loginBtn.setText(profile.name);
-  statusBar->showMessage("Logged in");
+  statusBar.showMessage("Logged in");
 
   if (profile.pictureURL == "")
     return;
@@ -144,17 +138,16 @@ void GSOAuth::Login() {
   QByteArray pic{oauthNetAccess.Get(profile.pictureURL, tokens.accessToken)};
   dialog.hide();
   if (pic == "") {
-    loginBtn.setIcon(QIcon{defaultProfilePictureFilePath});
-    statusBar->showMessage("Profile picture invalid!");
+    statusBar.showMessage("Profile picture invalid!");
     return;
   }
 
-  QFile profilePictureFile{profilePictureFilePath};
-  if (!profilePictureFile.open(QFile::WriteOnly)) {
-    statusBar->showMessage("Could not open profile picture file!");
+  QFile profilePicFile{profilePicPath};
+  if (!profilePicFile.open(QFile::WriteOnly)) {
+    statusBar.showMessage("Could not open profile picture file!");
     return;
-  } else if (profilePictureFile.write(pic) != -1) {
-    loginBtn.setIcon(QIcon{profilePictureFilePath});
+  } else if (profilePicFile.write(pic) != -1) {
+    loginBtn.setIcon(QIcon{profilePicPath});
   }
 }
 } // namespace GS

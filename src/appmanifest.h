@@ -7,7 +7,5 @@ struct AppManifest {
   static const QString OrgName;
   static const QString AppName;
   static const QString Version;
-  static const QString ClientID;
-  static const QString RedirectURI;
 };
 } // namespace GS

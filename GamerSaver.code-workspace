@@ -5,7 +5,8 @@
   },
   "settings": {
     "files.associations": {
-      "qstring": "cpp"
+      "qstring": "cpp",
+      "qfile": "cpp"
     }
   }
 }

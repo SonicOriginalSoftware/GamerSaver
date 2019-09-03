@@ -1,11 +1,11 @@
 #pragma once
 #include "gsoauth.h"
-#include <QComboBox>
-#include <QGridLayout>
-#include <QListView>
 #include <QMainWindow>
-#include <QPushButton>
 #include <QStringListModel>
+#include <QGridLayout>
+#include <QComboBox>
+#include <QPushButton>
+#include <QListView>
 
 namespace GS {
 class MainWindow : public QMainWindow {
@@ -13,15 +13,16 @@ class MainWindow : public QMainWindow {
 
   QStringListModel gameLM{};
   QStringListModel saveLM{};
-  QWidget gridLayoutWidget{};
   QGridLayout gridLayout{};
-  QPushButton refreshBtn{};
+  QWidget gridLayoutWidget{};
   QComboBox gameSelector{};
+  QPushButton refreshBtn{};
   QListView saveList{};
 
-  // GSOAuth gsOAuth{this->statusBar()};
-
   void refresh(const bool & = false);
+
+  // GSOAuth gsOAuth{*this, [=](QPushButton* loginBtn)
+  //                        {gridLayout.addWidget(loginBtn, 2, 0, 1, 5);}};
 
 public:
   explicit MainWindow();
