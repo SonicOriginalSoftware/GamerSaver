@@ -64,10 +64,10 @@ OAuthLoopbackServer::ListenForConsent(const QString &listenAddress,
       QString stringResponse{response};
       int firstIndex{stringResponse.lastIndexOf("{")};
       QJsonObject responseAsJson =
-          QJsonDocument::fromJson(QStringRef{&stringResponse, firstIndex,
-                                             response.length() - firstIndex}
-                                      .toUtf8())
-              .object();
+          QJsonDocument::fromJson(
+            QStringRef{&stringResponse,
+                       firstIndex,
+                       response.length() - firstIndex}.toUtf8()).object();
 
       accessToken = responseAsJson["access_token"].toString();
       if (!responseAsJson.contains("error")) {

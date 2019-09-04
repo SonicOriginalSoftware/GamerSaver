@@ -98,6 +98,7 @@ void GSOAuth::Login() {
 
   switch (consentResponse.error) {
   case OAuth::ConsentReturnCodes::OK:
+    tokens.accessToken = consentResponse.accessToken;
     break;
   case OAuth::ConsentReturnCodes::CANCELLED:
     statusBar.showMessage("Request was cancelled!");
@@ -116,9 +117,11 @@ void GSOAuth::Login() {
     return;
   }
 
+  qDebug() << tokens.accessToken;
   dialog.show();
   QByteArray user{oauthNetAccess.Get(endpoints.userInfo, tokens.accessToken)};
   dialog.hide();
+  qDebug() << user;
   if (user == "") {
     statusBar.showMessage("User info invalid!");
     return;
