@@ -5,19 +5,17 @@
 namespace GS {
 MainWindow::MainWindow() {
   setWindowTitle("GamerSaver");
+  setCentralWidget(&centralWidget);
 
-  gridLayoutWidget.setLayout(&gridLayout);
-  setCentralWidget(&gridLayoutWidget);
-
-  refreshBtn.setText("Refresh");
-
+  gridLayout.addWidget(&saveList, 1, 0, 1, 5);
   gridLayout.addWidget(&gameSelector, 0, 0, 1, 4);
   gridLayout.addWidget(&refreshBtn, 0, 4, 1, 1);
-  gridLayout.addWidget(&saveList, 1, 0, 1, 5);
 
-  QObject::connect(&refreshBtn, &QPushButton::clicked, this, &MainWindow::refresh);
-  QObject::connect(&gameSelector, &QComboBox::currentTextChanged,
+  QObject::connect(
+      &gameSelector, &QComboBox::currentTextChanged,
       [=](const QString &gameName) { saveLM.setStringList(games[gameName]); });
+  QObject::connect(&refreshBtn, &QPushButton::clicked, this,
+                   &MainWindow::refresh);
 
   refresh();
   saveList.setModel(&saveLM);

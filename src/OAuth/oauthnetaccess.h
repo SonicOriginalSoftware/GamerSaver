@@ -9,14 +9,14 @@ class QNetworkRequest;
 namespace GS {
 class OAuthNetAccess {
   QNetworkAccessManager qnam;
-  QEventLoop& loop;
+  QEventLoop &loop;
 
-  QByteArray get(const QNetworkRequest&);
+  QByteArray get(const QNetworkRequest &);
 
 public:
-  OAuthNetAccess(QEventLoop&);
-  QByteArray Get(const QString&);
-  QByteArray Get(const QString&, const QString&);
+  OAuthNetAccess(QEventLoop &);
+  QByteArray Get(const QString &);
+  QByteArray Get(const QString &, const QString &);
   static bool SSLSupported();
   static QString GetSSLBuildVersion();
 };

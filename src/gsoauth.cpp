@@ -1,6 +1,6 @@
 #include "gsoauth.h"
-#include "mainwindow.h"
 #include "OAuth/oauthloopbackserver.h"
+#include "mainwindow.h"
 #include <QCoreApplication>
 #include <QDesktopServices>
 #include <QFile>
@@ -13,7 +13,7 @@
 namespace OAuth {
 const QString OAuth2::OAuthParameters::RedirectUri{"http://localhost"};
 const QString OAuth2::OAuthParameters::ClientId{
-  "207822922610-jpk6ice7tsbo5ml6ig2q795ph1dnohle.apps.googleusercontent.com"};
+    "207822922610-jpk6ice7tsbo5ml6ig2q795ph1dnohle.apps.googleusercontent.com"};
 const QString OAuth2::OAuthParameters::Scope{QUrl::toPercentEncoding(
     "https://www.googleapis.com/auth/drive.file profile")};
 } // namespace OAuth
@@ -22,12 +22,13 @@ namespace GS {
 const QString GSOAuth::loginBtnDefaultValue{"Login"};
 const QString GSOAuth::defaultProfilePicPath{":/res/login_placeholder.svg"};
 
-GSOAuth::GSOAuth(MainWindow& window)
-// GSOAuth::GSOAuth(MainWindow& window, std::function<void(QPushButton*)>addLoginBtn)
-    : profilePicPath{QCoreApplication::applicationDirPath().toUtf8() + "profilePic.jpg"} {
-  // addLoginBtn(&loginBtn);
+GSOAuth::GSOAuth(std::function<void(QStatusBar *)> setStatusBar,
+                 std::function<void(QPushButton *)> addLoginBtn)
+    : profilePicPath{QCoreApplication::applicationDirPath().toUtf8() +
+                     "profilePic.jpg"} {
+  addLoginBtn(&loginBtn);
   statusBar.setSizeGripEnabled(false);
-  window.setStatusBar(&statusBar);
+  setStatusBar(&statusBar);
 
   dialog.setIcon(QMessageBox::Icon::NoIcon);
   dialog.setWindowTitle("GamerSaver - Waiting...");
@@ -40,9 +41,11 @@ GSOAuth::GSOAuth(MainWindow& window)
   Logout();
 
   QObject::connect(&dialog, &QMessageBox::finished, &loop, &QEventLoop::exit);
-  QObject::connect(
-      &loginBtn, &QPushButton::clicked,
-      [=](const bool &unchecked) { !unchecked ? Logout() : Login(); });
+  QObject::connect(&loginBtn, &QPushButton::clicked,
+                   [=](const bool &unchecked) {
+                     loginBtn.setChecked(false);
+                     !unchecked ? Logout() : Login();
+                   });
 
   if (!OAuthNetAccess::SSLSupported()) {
     statusBar.showMessage("No SSL library detected. Install " +
@@ -51,7 +54,7 @@ GSOAuth::GSOAuth(MainWindow& window)
   }
 
   statusBar.showMessage("Requesting Google Discovery Doc from " +
-                         GoogleOAuth::DiscoveryDocUrl);
+                        GoogleOAuth::DiscoveryDocUrl);
   dialog.show();
   QByteArray doc{oauthNetAccess.Get(GoogleOAuth::DiscoveryDocUrl)};
   dialog.hide();
@@ -75,7 +78,6 @@ void GSOAuth::Logout() {
   QFile::remove(profilePicPath);
   loginBtn.setText(loginBtnDefaultValue);
   loginBtn.setIcon(QIcon{defaultProfilePicPath});
-  loginBtn.setChecked(false);
   statusBar.showMessage("Logged out");
   return;
 }

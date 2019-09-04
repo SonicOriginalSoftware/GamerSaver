@@ -2,8 +2,7 @@
 #include "../oauth.h"
 
 namespace OAuth {
-class GoogleOAuth : protected OAuth::OAuth2
-{
+class GoogleOAuth : protected OAuth::OAuth2 {
 protected:
   static const QString DiscoveryDocUrl;
   static const QString AuthEndpointKey;

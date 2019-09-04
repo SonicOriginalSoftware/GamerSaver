@@ -22,8 +22,8 @@ class GSOAuth : OAuth::GoogleOAuth {
 public:
   QPushButton loginBtn{};
 
-  // explicit GSOAuth(MainWindow&, std::function<void(QPushButton*)>);
-  explicit GSOAuth(MainWindow&);
+  explicit GSOAuth(std::function<void(QStatusBar *)>,
+                   std::function<void(QPushButton *)>);
   void Login();
   void Logout();
 };
