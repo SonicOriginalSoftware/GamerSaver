@@ -1,11 +1,25 @@
 #include "mainwindow.h"
 #include "game.h"
 #include "gsoauth.h"
+#include <QMenuBar>
 
 namespace GS {
 MainWindow::MainWindow() {
   setWindowTitle("GamerSaver");
   setCentralWidget(&centralWidget);
+
+  QMenu *settingsMenu{menuBar()->addMenu("Settings")};
+  QMenu *themeMenu{settingsMenu->addMenu("Theme")};
+  QActionGroup* themeActions = new QActionGroup{themeMenu};
+  themeMenu->addActions(QList<QAction*>{
+    new QAction{"Light Theme", themeActions},
+    new QAction{"Dark Theme", themeActions},
+    new QAction{"Custom Theme", themeActions}}
+  );
+  for(const auto& eachAction : themeMenu->actions()) {
+    eachAction->setCheckable(true);
+  }
+  themeMenu->actions().first()->setChecked(true);
 
   gridLayout.addWidget(&saveList, 1, 0, 1, 5);
   gridLayout.addWidget(&gameSelector, 0, 0, 1, 4);
